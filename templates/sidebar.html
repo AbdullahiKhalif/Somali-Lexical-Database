@@ -25,6 +25,8 @@
           <div id="userMenu">
             <ul class="sidebar-nav text-dark">
               <li class="sidebar-header fw-bold text-dark">Pages</li>
+
+              <!-- Dashboard Link -->
               <li class="sidebar-item active">
                 <a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
                   <i class="align-middle text-dark" data-feather="sliders"></i>
@@ -37,7 +39,8 @@
                 </ul>
               </li>
 
-              {% if session['userRole'] == 'Admin' %}
+              <!-- Subscriber Section (Admin/Moderator) -->
+              {% if session['userRole'] == 'Admin' or session['userRole'] == 'Moderator' %}
               <li class="sidebar-item">
                 <a data-bs-target="#pages" data-bs-toggle="collapse" class="sidebar-link collapsed">
                   <i class="align-middle text-dark" data-feather="users"></i>
@@ -59,7 +62,10 @@
                   </li>
                 </ul>
               </li>
-              {% elif session['userRole'] == 'User' %}
+              {% endif %}
+
+              <!-- Subscriber Section (User) -->
+              {% if session['userRole'] == 'User' %}
               <li class="sidebar-item">
                 <a data-bs-target="#pages" data-bs-toggle="collapse" class="sidebar-link collapsed">
                   <i class="align-middle text-dark" data-feather="users"></i>
@@ -77,6 +83,7 @@
               </li>
               {% endif %}
 
+              <!-- Reports Section -->
               <li class="sidebar-item">
                 <a data-bs-target="#charts" data-bs-toggle="collapse" class="sidebar-link collapsed">
                   <i class="align-middle text-dark" data-feather="pie-chart"></i>
@@ -87,7 +94,7 @@
                   <li class="sidebar-item">
                     <a class="sidebar-link text-primary" href="{{ url_for('reports') }}">Main Report</a>
                   </li>
-                  {% if session['userRole'] == 'Admin' %}
+                  {% if session['userRole'] == 'Admin' or session['userRole'] == 'Moderator' %}
                   <li class="sidebar-item">
                     <a class="sidebar-link text-primary" href="{{ url_for('reports_root') }}">Root Words</a>
                   </li>
@@ -98,6 +105,7 @@
                 </ul>
               </li>
 
+              <!-- Auth Section -->
               <li class="sidebar-item">
                 <a data-bs-target="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">
                   <i class="align-middle text-dark" data-feather="power"></i>

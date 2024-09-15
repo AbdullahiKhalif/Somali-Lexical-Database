@@ -159,7 +159,7 @@ $('#editUserForm').submit(function(event) {
                     },
                     error: function(error) {
                         console.error('Error deleting user:', error);
-                        Swal.fire('Error', 'Failed to delete user', 'error');
+                        Swal.fire('Error', 'Permission denied: Moderators cannot delete data', 'error');
                     }
                 });
             }

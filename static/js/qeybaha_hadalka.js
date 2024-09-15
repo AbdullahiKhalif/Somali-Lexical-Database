@@ -117,8 +117,8 @@ $(document).ready(function() {
                         Swal.fire('Deleted!', 'Qeybaha Hadalka has been deleted.', 'success');
                     },
                     error: function(error) {
-                        console.error('Sorry! You cannot delete this data. Only the original user can delete it.:', error);
-                        Swal.fire('Error', 'Sorry! You cannot delete this data. Only the original user can delete it.', 'error');
+                        console.error('Sorry! You cannot delete this data. Only the original user can delete it.:', error.responseJSON.error);
+                        Swal.fire('Error', error.responseJSON.error, 'error');
                     }
                 });
             }

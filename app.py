@@ -32,15 +32,16 @@ def get_db_connection():
     connection = mysql.connector.connect(**mysql_config)
     return connection
 
-def role_required(required_role):
+def role_required(*allowed_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if 'userRole' not in session or session['userRole'] != required_role:
+            if 'userRole' not in session or session['userRole'] not in allowed_roles:
                 return redirect(url_for('dashboard'))  # Redirect to the dashboard or another page
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
 
 # Home Route
 @app.route('/')
@@ -172,14 +173,14 @@ def dashboard_data():
 
 
 @app.route('/users')
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def users():
     if 'username' not in session:
         return redirect(url_for('login'))
     return render_template('users.html')
 
 @app.route('/get_users', methods=['GET'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def get_users():
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -193,7 +194,7 @@ def get_users():
     return jsonify(users)
 
 @app.route('/get_user/<int:user_id>', methods=['GET'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def get_user(user_id):
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -254,7 +255,7 @@ def add_user():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/edit_user/<int:user_id>', methods=['POST'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def edit_user(user_id):
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -321,7 +322,7 @@ def delete_user(user_id):
     return jsonify({'message': 'User deleted successfully'})
 
 @app.route('/qeybaha_hadalka')
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def qeybaha_hadalka():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -329,18 +330,31 @@ def qeybaha_hadalka():
 
 # CRUD Operations for Qeybaha Hadalka
 @app.route('/readAll', methods=['GET'])
-@role_required('Admin')
 def get_all_qeybaha_hadalka():
+    if 'id' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    user_role = session.get('userRole')
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM qeybaha_hadalka")
+
+    # Admins and Moderators can see all Qeybta_hadalka
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT * FROM qeybaha_hadalka")
+    else:
+        # Users can also see all Qeybta_hadalka
+        cursor.execute("SELECT * FROM qeybaha_hadalka")
+
     data = cursor.fetchall()
     cursor.close()
     conn.close()
+
     return jsonify(data)
 
+
 @app.route('/readInfo/<int:id>', methods=['GET'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def get_qeybaha_hadalka(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -353,11 +367,18 @@ def get_qeybaha_hadalka(id):
     return jsonify({'error': 'Record not found'}), 404
 
 @app.route('/create', methods=['POST'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')  # Only Admin can insert
 def create_qeybaha_hadalka():
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
 
+    user_role = session.get('userRole')
+
+    # Deny access if the user is a Moderator
+    if user_role == 'Moderator':
+        return jsonify({'error': 'Permission denied: Moderators cannot insert data'}), 403
+
+    # Proceed with insertion for other roles
     new_record = request.json
     Qaybta_hadalka = new_record.get('Qaybta_hadalka')
     Loo_gaabsho = new_record.get('Loo_gaabsho')
@@ -383,7 +404,7 @@ def create_qeybaha_hadalka():
 
 
 @app.route('/update/<int:id>', methods=['PUT'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')  # Allow both Admin and Moderator to update
 def update_qeybaha_hadalka(id):
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -394,43 +415,16 @@ def update_qeybaha_hadalka(id):
     update_record = request.get_json()
     Qaybta_hadalka = update_record.get('Qaybta_hadalka')
     Loo_gaabsho = update_record.get('Loo_gaabsho')
-    current_user_id = session['id']  # Get the current user's ID from the session
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Retrieve the record to check the user who created it
-    cursor.execute("SELECT userId FROM qeybaha_hadalka WHERE Aqoonsiga_hadalka = %s", (id,))
-    record = cursor.fetchone()
-
-    if not record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Record not found'}), 404
-
-    if record['userId'] != current_user_id:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Sorry! You cannot update this data. Only the original user can update it.'}), 403
-
-    # Check if Qaybta_hadalka is unique except for the current record
-    cursor.execute("""
-        SELECT * FROM qeybaha_hadalka 
-        WHERE Qaybta_hadalka = %s AND Aqoonsiga_hadalka != %s AND userId = %s
-    """, (Qaybta_hadalka, id, current_user_id))
-    existing_record = cursor.fetchone()
-
-    if existing_record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'This word is already recorded! Please enter a new one.'}), 400
-
-    # Proceed with updating the record
+    # Proceed with updating the record (Admins and Moderators can update)
     cursor.execute("""
         UPDATE qeybaha_hadalka 
         SET Qaybta_hadalka = %s, Loo_gaabsho = %s 
-        WHERE Aqoonsiga_hadalka = %s AND userId = %s
-    """, (Qaybta_hadalka, Loo_gaabsho, id, current_user_id))
+        WHERE Aqoonsiga_hadalka = %s
+    """, (Qaybta_hadalka, Loo_gaabsho, id))
 
     conn.commit()
     cursor.close()
@@ -439,10 +433,16 @@ def update_qeybaha_hadalka(id):
     return jsonify({'message': 'Record updated successfully'})
 
 @app.route('/delete/<int:id>', methods=['DELETE'])
-@role_required('Admin')
+@role_required('Admin', 'Moderator')  # Only Admin can delete
 def delete_qeybaha_hadalka(id):
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
+
+    user_role = session.get('userRole')
+
+    # Deny access if the user is a Moderator
+    if user_role == 'Moderator':
+        return jsonify({'error': 'Permission denied: Moderators cannot delete data'}), 403
 
     current_user_id = session['id']  # Get the current user's ID from the session
 
@@ -458,18 +458,14 @@ def delete_qeybaha_hadalka(id):
         conn.close()
         return jsonify({'error': 'Record not found'}), 404
 
-    if record['userId'] != current_user_id:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Sorry! You cannot delete this data. Only the original user can delete it.'}), 403
-
     # Proceed with deleting the record
-    cursor.execute("DELETE FROM qeybaha_hadalka WHERE Aqoonsiga_hadalka = %s AND userId = %s", (id, current_user_id))
+    cursor.execute("DELETE FROM qeybaha_hadalka WHERE Aqoonsiga_hadalka = %s", (id,))
     conn.commit()
     cursor.close()
     conn.close()
 
     return jsonify({'message': 'Record deleted successfully'})
+
 
 
 @app.route('/asalka_ereyada')
@@ -484,23 +480,35 @@ def get_all_asalka_ereyada():
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
 
-    userId = session['id']  # Get the current user's ID from the session
+    userId = session['id']
+    userRole = session['userRole']  # Get the user's role
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Query to get the records for the current user
-    cursor.execute("SELECT * FROM asalka_ereyada WHERE userId = %s", (userId,))
+    # Modify the query based on userRole
+    if userRole == 'Admin' or userRole == 'Moderator':
+        # Admin or Moderator can see all records
+        cursor.execute("SELECT * FROM asalka_ereyada")
+    else:
+        # Regular User can only see their own records
+        cursor.execute("SELECT * FROM asalka_ereyada WHERE userId = %s", (userId,))
+
     data = cursor.fetchall()
 
-    # Query to count the total number of records for the current user
-    cursor.execute("SELECT COUNT(*) AS total_records FROM asalka_ereyada WHERE userId = %s", (userId,))
+    # Count total records based on role
+    if userRole == 'Admin' or userRole == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_records FROM asalka_ereyada")
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_records FROM asalka_ereyada WHERE userId = %s", (userId,))
+
     total_records = cursor.fetchone()['total_records']
 
     cursor.close()
     conn.close()
 
     return jsonify({'data': data, 'total_records': total_records})
+
 
 
 @app.route('/readInfoAsalka/<int:id>', methods=['GET'])
@@ -656,25 +664,47 @@ def get_all_erayga_hadalka():
         return jsonify({'error': 'User not logged in'}), 403
 
     user_id = session['id']  # Get the current user's ID from the session
+    user_role = session['userRole']  # Get the current user's role
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    query = """
-    SELECT 
-        eh.Aqoonsiga_erayga, 
-        eh.Erayga, 
-        eh.Nooca_erayga, 
-        qh.Qaybta_hadalka AS Qeybta_hadalka_name, 
-        ae.Erayga_Asalka AS Asalka_erayga_name
-    FROM 
-        erayga_hadalka eh
-        JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
-        JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga
-    WHERE 
-        eh.userId = %s
-    """
-    cursor.execute(query, (user_id,))
+    # Modify the query based on userRole
+    if user_role == 'Admin' or user_role == 'Moderator':
+        # Admin or Moderator can see all records
+        query = """
+        SELECT 
+            eh.Aqoonsiga_erayga, 
+            eh.Erayga, 
+            eh.Nooca_erayga, 
+            qh.Qaybta_hadalka AS Qeybta_hadalka_name, 
+            ae.Erayga_Asalka AS Asalka_erayga_name
+        FROM 
+            erayga_hadalka eh
+            JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
+            JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga
+        ORDER BY ae.Erayga_Asalka ASC
+        """
+        cursor.execute(query)  # No filtering by userId
+    else:
+        # Regular User can only see their own records
+        query = """
+        SELECT 
+            eh.Aqoonsiga_erayga, 
+            eh.Erayga, 
+            eh.Nooca_erayga, 
+            qh.Qaybta_hadalka AS Qeybta_hadalka_name, 
+            ae.Erayga_Asalka AS Asalka_erayga_name
+        FROM 
+            erayga_hadalka eh
+            JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
+            JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga
+        WHERE 
+            eh.userId = %s
+        ORDER BY ae.Erayga_Asalka ASC
+        """
+        cursor.execute(query, (user_id,))  # Filter by userId
+
     data = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -686,13 +716,18 @@ def get_erayga_hadalka(id):
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
 
-    user_id = session['id']  # Get the current user's ID from the session
+    user_id = session['id']
+    user_role = session['userRole']  # Get the current user's role from the session
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch the specific Erayga Hadalka record, ensuring it belongs to the current user
-    cursor.execute("SELECT * FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s AND userId = %s", (id, user_id))
+    # Admins and Moderators can access any record, regular users can only access their own
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT * FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
+    else:
+        cursor.execute("SELECT * FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s AND userId = %s", (id, user_id))
+
     erayga_data = cursor.fetchone()
 
     if not erayga_data:
@@ -700,8 +735,12 @@ def get_erayga_hadalka(id):
         conn.close()
         return jsonify({'error': 'Record not found or you do not have permission to view it'}), 404
 
-    # Fetch all Erayga Asalka options
-    cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada WHERE userId = %s", (user_id,))
+    # Admins and Moderators can view all Asalka Erayga options, regular users only see their own
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada")
+    else:
+        cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada WHERE userId = %s", (user_id,))
+
     asalka_options = cursor.fetchall()
 
     cursor.close()
@@ -712,40 +751,47 @@ def get_erayga_hadalka(id):
         'asalka_options': asalka_options
     })
 
+
 @app.route('/createErayga', methods=['POST'])
 def create_erayga_hadalka():
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
+
+    user_role = session['userRole']
+
+    # Allow Admin and User to insert, but deny Moderator
+    if user_role == 'Moderator':
+        return jsonify({'error': 'Permission denied: Moderators cannot insert data'}), 403
 
     new_record = request.json
     Erayga = new_record.get('Erayga')
     Nooca_erayga = new_record.get('Nooca_erayga')
     Qeybta_hadalka = new_record.get('Qeybta_hadalka')
     Asalka_erayga = new_record.get('Asalka_erayga')
-    user_id = session['id']  # Get the current user's ID from the session
+    user_id = session['id']
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Check if the word already exists in the erayga_hadalka table
+    # Check if the word already exists in the `erayga_hadalka` table
     cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s", (Erayga,))
     existing_record = cursor.fetchone()
 
     if existing_record:
         cursor.close()
         conn.close()
-        return jsonify({'error': 'The original word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
+        return jsonify({'error': 'The word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
 
-    # Check if the word exists in the asalka_ereyada table
+    # Check if the Asalka_Erayga already exists in `asalka_ereyada`
     cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s", (Erayga,))
     existing_asalka_record = cursor.fetchone()
 
     if existing_asalka_record:
         cursor.close()
         conn.close()
-        return jsonify({'error': 'This word is already recorded as a Root word in Asalka Ereyada. Please use another word.'}), 400
+        return jsonify({'error': 'This  already exists in the system as Asalka erayada! Please use another one.'}), 400
 
-    # If both checks pass, insert the new record with the userId
+    # Proceed with inserting the new record
     cursor.execute(
         "INSERT INTO erayga_hadalka (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, userId) VALUES (%s, %s, %s, %s, %s)",
         (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, user_id)
@@ -753,6 +799,7 @@ def create_erayga_hadalka():
     conn.commit()
     cursor.close()
     conn.close()
+
     return jsonify({'message': 'Record created successfully'}), 201
 
 @app.route('/updateErayga/<int:id>', methods=['PUT'])
@@ -760,45 +807,59 @@ def update_erayga_hadalka(id):
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
 
+    user_role = session['userRole']
+    user_id = session['id']
+
     update_record = request.json
     Erayga = update_record.get('Erayga')
     Nooca_erayga = update_record.get('Nooca_erayga')
     Qeybta_hadalka = update_record.get('Qeybta_hadalka')
     Asalka_erayga = update_record.get('Asalka_erayga')
-    user_id = session['id']  # Get the current user's ID from the session
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Check if the current user is the one who created the record
+    # Fetch the existing record and its owner
     cursor.execute("SELECT userId FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
-    record = cursor.fetchone()
-
-    if not record or record['userId'] != user_id:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Sorry! You cannot update this data. Only the original user can update it.'}), 403
-
-    # Check if the word is already recorded in erayga_hadalka for a different record
-    cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s AND Aqoonsiga_erayga != %s",
-                   (Erayga, id))
     existing_record = cursor.fetchone()
 
-    if existing_record:
+    if not existing_record:
         cursor.close()
         conn.close()
-        return jsonify({'error': 'The original word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
+        return jsonify({'error': 'Record not found'}), 404
+
+    # Role-based permissions
+    if user_role == 'User' and existing_record['userId'] != user_id:
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Permission denied: You can only update your own records'}), 403
+    elif user_role == 'Moderator':
+        # Moderators can only update records, no insert or delete
+        pass  # No additional check required since they can only update
+    elif user_role != 'Admin':
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Permission denied'}), 403
+
+    # Check if the word is already recorded in erayga_hadalka for a different record
+    cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s AND Aqoonsiga_erayga != %s", (Erayga, id))
+    existing_erayga = cursor.fetchone()
+
+    if existing_erayga:
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'The word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
 
     # Check if the word is recorded in the asalka_ereyada table
     cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s", (Erayga,))
     existing_asalka_record = cursor.fetchone()
 
-    if existing_asalka_record:
+    if not existing_asalka_record:
         cursor.close()
         conn.close()
-        return jsonify({'error': 'This word is already recorded as a Root word in Asalka Ereyada. Please use another word.'}), 400
+        return jsonify({'error': 'The word is alrady exist as Asalka Erayada! Please choose a valid one.'}), 400
 
-    # If all checks pass, update the record
+    # Proceed with updating the record
     cursor.execute(
         "UPDATE erayga_hadalka SET Erayga = %s, Nooca_erayga = %s, Qeybta_hadalka = %s, Asalka_erayga = %s WHERE Aqoonsiga_erayga = %s",
         (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, id)
@@ -806,18 +867,41 @@ def update_erayga_hadalka(id):
     conn.commit()
     cursor.close()
     conn.close()
+
     return jsonify({'message': 'Record updated successfully'})
 
 
 @app.route('/deleteErayga/<int:id>', methods=['DELETE'])
 def delete_erayga_hadalka(id):
+    if 'id' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    user_role = session['userRole']
+    user_id = session['id']
+
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
+
+    # Admin can delete any record
+    if user_role == 'Moderator':
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Permission denied: Moderators cannot delete data'}), 403
+
+    if user_role == 'User':
+        # Ensure the user only deletes their own data
+        cursor.execute("SELECT userId FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
+        record = cursor.fetchone()
+        if not record or record['userId'] != user_id:
+            cursor.close()
+            conn.close()
+            return jsonify({'error': 'Permission denied: You can only delete your own records'}), 403
+
     cursor.execute("DELETE FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
     conn.commit()
     cursor.close()
     conn.close()
-    return jsonify({'message': 'Record deleted successfully'})
+    return jsonify({'message': 'Record deleted successfully'}), 200
 
 
 @app.route('/reports')
@@ -907,7 +991,7 @@ def reports_data():
     return jsonify(data)
 
 @app.route('/reportsRootWords')
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def reports_root():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -934,7 +1018,7 @@ def get_all_asalka_ereyada_ordered_by_username():
         conn.close()
 
 @app.route('/userReports')
-@role_required('Admin')
+@role_required('Admin', 'Moderator')
 def usersReports():
     if 'username' not in session:
         return redirect(url_for('login'))
