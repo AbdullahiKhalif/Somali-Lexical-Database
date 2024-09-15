@@ -17,8 +17,9 @@
       <nav id="sidebar" class="sidebar">
         <div class="sidebar-content js-simplebar">
           <a class="sidebar-brand" href="/">
-            <div class="align-middle me-3 fw-bold text-dark">
-              <img src="{{ url_for('static', filename='/images/logo.PNG') }}" alt="Customer Support" class="img-fluid illustration-img" />
+            <div class="align-middle me-3  fw-bold text-dark d-flex">
+             <span> <img src="{{ url_for('static', filename='/images/logo.PNG') }}" alt="Customer Support" class="img-fluid illustration-img" style="height: 8vh; weight:100%;"/></span>
+              <span class="fs-4 text-primary" style="text-transform: uppercase; font-weight: bold; line-height:1; text-align: center; margin-top: 15px;">Somali lexical Database</span>
             </div>
           </a>
 
@@ -31,6 +32,7 @@
                 <a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
                   <i class="align-middle text-dark" data-feather="sliders"></i>
                   <span class="align-middle text-dark">Dashboards</span>
+
                 </a>
                 <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
                   <li class="sidebar-item active">
