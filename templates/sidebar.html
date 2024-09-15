@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Graduate Admission Prediction</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link
+      class="js-stylesheet"
+      href="{{ url_for('static', filename='assets/css/light.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-behavior="sticky">
+    <div class="wrapper">
+      <nav id="sidebar" class="sidebar">
+        <div class="sidebar-content js-simplebar">
+          <a class="sidebar-brand" href="/">
+            <div class="align-middle me-3 fw-bold text-dark">
+              <img src="{{ url_for('static', filename='/images/logo.PNG') }}" alt="Customer Support" class="img-fluid illustration-img" />
+            </div>
+          </a>
+
+          <div id="userMenu">
+            <ul class="sidebar-nav text-dark">
+              <li class="sidebar-header fw-bold text-dark">Pages</li>
+              <li class="sidebar-item active">
+                <a data-bs-target="#dashboards" data-bs-toggle="collapse" class="sidebar-link">
+                  <i class="align-middle text-dark" data-feather="sliders"></i>
+                  <span class="align-middle text-dark">Dashboards</span>
+                </a>
+                <ul id="dashboards" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                  <li class="sidebar-item active">
+                    <a class="sidebar-link" href="dashboard">Dashboard</a>
+                  </li>
+                </ul>
+              </li>
+
+              {% if session['userRole'] == 'Admin' %}
+              <li class="sidebar-item">
+                <a data-bs-target="#pages" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                  <i class="align-middle text-dark" data-feather="users"></i>
+                  <span class="align-middle text-dark">Subscriber</span>
+                  <span class="badge badge-sidebar-primary">4</span>
+                </a>
+                <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('users') }}">Users</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('qeybaha_hadalka') }}">Qeybaha hadalka</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Asalka ereyada</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Erayga hadalka</a>
+                  </li>
+                </ul>
+              </li>
+              {% elif session['userRole'] == 'User' %}
+              <li class="sidebar-item">
+                <a data-bs-target="#pages" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                  <i class="align-middle text-dark" data-feather="users"></i>
+                  <span class="align-middle text-dark">Subscriber</span>
+                  <span class="badge badge-sidebar-primary">4</span>
+                </a>
+                <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Asalka ereyada</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Erayga hadalka</a>
+                  </li>
+                </ul>
+              </li>
+              {% endif %}
+
+              <li class="sidebar-item">
+                <a data-bs-target="#charts" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                  <i class="align-middle text-dark" data-feather="pie-chart"></i>
+                  <span class="align-middle text-dark">Reports</span>
+                  <span class="badge badge-sidebar-primary">New</span>
+                </a>
+                <ul id="charts" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('reports') }}">Main Report</a>
+                  </li>
+                  {% if session['userRole'] == 'Admin' %}
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('reports_root') }}">Root Words</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('usersReports') }}">Users Reports</a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </li>
+
+              <li class="sidebar-item">
+                <a data-bs-target="#auth" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                  <i class="align-middle text-dark" data-feather="power"></i>
+                  <span class="align-middle text-dark">Auth</span>
+                  <span class="badge badge-sidebar-primary">1</span>
+                </a>
+                <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('logout') }}">Logout</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  </body>
+</html>
