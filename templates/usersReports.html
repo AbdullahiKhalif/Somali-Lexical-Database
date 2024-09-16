@@ -9,45 +9,45 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
 </head>
 <body>
-{% include 'sidebar.html' %}
+    {% include 'sidebar.html' %}
 
-<main class="content">
-    <div class="container-fluid p-0">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fa fa-user fs-4 text-primary"></i>
-                        <span class="card-title fs-4">Users Reports</span>
-                        <h6 class="card-subtitle text-muted">Overview of user contributions to Asalka and Rafaca Erayada.</h6>
-                        <hr style="border: 1px solid #000;">
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="userReportTable" class="table table-striped DataTableResponsive" style="width:100%">
-                                <thead class="">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Username</th>
-                                        <th>Total_Asalka_Ereyada</th>
-                                        <th>Total_Rafaca_Ereyada</th>
-                                        <th>Wadarta_Guud</th>
-                                    </tr>
-                                </thead>
-                                <tbody style="font-size: 15px;">
-                                    <!-- Data will be inserted here via JavaScript -->
-                                </tbody>
-                            </table>
+    <main class="content">
+        <div class="container-fluid p-0">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fa fa-user fs-4 text-primary"></i>
+                            <span class="card-title fs-4">Users Reports</span>
+                            <h6 class="card-subtitle text-muted">Overview of user contributions to Root Words and Derivative Words.</h6>
+                            <hr style="border: 1px solid #000;">
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="userReportTable" class="table table-striped DataTableResponsive" style="width:100%">
+                                    <thead class="">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Username</th>
+                                            <th>Total Root Words (Asalka)</th>
+                                            <th>Total Derivative Words (Rafaca)</th>
+                                            <th>Total Contribution (Wadarta Guud)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="font-size: 15px;">
+                                        <!-- Data will be inserted here via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-{% include 'footer.html' %}
-<script src="{{ url_for('static', filename='js/usersReports.js') }}"></script>
+    {% include 'footer.html' %}
+    <script src="{{ url_for('static', filename='js/usersReports.js') }}"></script>
 
 </body>
 </html>

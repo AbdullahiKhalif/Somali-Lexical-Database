@@ -19,7 +19,7 @@
           <a class="sidebar-brand" href="/">
             <div class="align-middle me-3  fw-bold text-dark d-flex">
              <span> <img src="{{ url_for('static', filename='/images/logo.PNG') }}" alt="Customer Support" class="img-fluid illustration-img" style="height: 8vh; weight:100%;"/></span>
-              <span class="fs-4 text-primary" style="text-transform: uppercase; font-weight: bold; line-height:1; text-align: center; margin-top: 15px;">Somali lexical Database</span>
+              <span class="fs-4 text-primary" style="text-transform: uppercase; font-weight: bold; line-height:1; text-align: center; margin-top: 15px;">Somali Lexical Database</span>
             </div>
           </a>
 
@@ -54,13 +54,13 @@
                     <a class="sidebar-link text-primary" href="{{ url_for('users') }}">Users</a>
                   </li>
                   <li class="sidebar-item">
-                    <a class="sidebar-link text-primary" href="{{ url_for('qeybaha_hadalka') }}">Qeybaha hadalka</a>
+                    <a class="sidebar-link text-primary" href="{{ url_for('qeybaha_hadalka') }}">Speech Parts</a>
                   </li>
                   <li class="sidebar-item">
-                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Asalka ereyada</a>
+                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Root Words</a>
                   </li>
                   <li class="sidebar-item">
-                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Erayga hadalka</a>
+                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Spoken Words</a>
                   </li>
                 </ul>
               </li>
@@ -76,10 +76,10 @@
                 </a>
                 <ul id="pages" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                   <li class="sidebar-item">
-                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Asalka ereyada</a>
+                    <a class="sidebar-link text-primary" href="{{ url_for('asalka_ereyada') }}">Root Words</a>
                   </li>
                   <li class="sidebar-item">
-                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Erayga hadalka</a>
+                    <a class="sidebar-link text-primary" href="{{ url_for('erayga_hadalka') }}">Spoken Words</a>
                   </li>
                 </ul>
               </li>
@@ -95,6 +95,9 @@
                 <ul id="charts" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                   <li class="sidebar-item">
                     <a class="sidebar-link text-primary" href="{{ url_for('reports') }}">Main Report</a>
+                  </li>
+                   <li class="sidebar-item">
+                    <a class="sidebar-link text-primary" href="{{ url_for('ereyada_reports') }}">Spoken Words Report</a>
                   </li>
                   {% if session['userRole'] == 'Admin' or session['userRole'] == 'Moderator' %}
                   <li class="sidebar-item">

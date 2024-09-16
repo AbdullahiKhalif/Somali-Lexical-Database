@@ -13,10 +13,9 @@ $(document).ready(function() {
                 data.forEach(function(item, index) {
                     tbody += `<tr>
                         <td>${index + 1}</td>
-                        <td>${item.Erayga}</td>
-                        <td>${item.Nooca_erayga}</td>
-                        <td>${item.Qeybta_hadalka_name}</td>
                         <td>${item.Asalka_erayga_name}</td>
+                        <td>${item.Qeybta_hadalka_name}</td>
+                        <td>${item.Erayga}</td>
                         <td>
                             <button class="btn btn-primary btn-md edit-item" data-id="${item.Aqoonsiga_erayga}"><i class="fa fa-edit"></i></button>
                             <button class="btn btn-danger btn-md delete-item" data-id="${item.Aqoonsiga_erayga}"><i class="fa fa-trash"></i></button>
@@ -34,7 +33,7 @@ $(document).ready(function() {
     // Function to fetch select options for Qeybta Hadalka
     function fetchSelectOptions() {
         $.get('/readAll', function(data) {
-            let options = '<option value="0">Dooro Qeybta Hadalka</option>';
+            let options = '<option value="0">Choose Part of Speech</option>';
             data.forEach(item => {
                 options += `<option value="${item.Aqoonsiga_hadalka}">${item.Qaybta_hadalka} (${item.Loo_gaabsho})</option>`;
             });
@@ -52,7 +51,7 @@ $(document).ready(function() {
     // Function to fetch Asalka Erayga options for the current user
     function fetchAsalkaOptionsForUser() {
         $.get('/readAllAsalka', function(response) {
-            let options = '<option value="0">Dooro Asalka Erayga</option>';
+            let options = '<option value="0">Choose Root Words</option>';
             response.data.forEach(item => {
                 options += `<option value="${item.Aqonsiga_Erayga}">${item.Erayga_Asalka}</option>`;
             });
@@ -68,11 +67,16 @@ $(document).ready(function() {
         event.preventDefault();
         const formDataObject = {};
 
+        var eraygaInput = $("#Erayga").val();
         var noocaErayga = $("#Nooca_erayga").val();
         var qeybtaHadalka = $("#Qeybta_hadalka").val();
         var asalkaErayga = $("#Asalka_erayga").val();
 
         // Validate form inputs
+        if (eraygaInput.trim() === "") {
+            Swal.fire('Error', 'Erayga is required. Please enter a value.', 'error');
+            return;
+        }
         if (noocaErayga === "0") {
             Swal.fire('Error', 'Nooca Erayga is required. Please select a valid option.', 'error');
             return;
@@ -86,25 +90,40 @@ $(document).ready(function() {
             return;
         }
 
-        // Serialize form data to JSON
-        $(this).serializeArray().forEach(field => {
-            formDataObject[field.name] = field.value;
+        // Split the Erayga input by comma or space to get multiple words
+        let eraygaWords = eraygaInput.split(/[,\s]+/).filter(word => word.trim() !== "");
+
+        if (eraygaWords.length === 0) {
+            Swal.fire('Error', 'Please enter valid words for Erayga.', 'error');
+            return;
+        }
+
+        // Prepare the form data for each word
+        const requests = eraygaWords.map(word => {
+            const newWordData = {
+                Erayga: word.trim(),
+                Nooca_erayga: noocaErayga,
+                Qeybta_hadalka: qeybtaHadalka,
+                Asalka_erayga: asalkaErayga
+            };
+            return $.ajax({
+                url: '/createErayga',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(newWordData)
+            });
         });
 
-        $.ajax({
-            url: '/createErayga',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formDataObject),
-            success: function(data) {
+        // Send all requests and handle the response
+        Promise.all(requests)
+            .then(function() {
                 $('#addEraygaModal').modal('hide');
                 fetchEraygaHadalka();
-                Swal.fire('Success', data.message, 'success');
-            },
-            error: function(xhr) {
+                Swal.fire('Success', `${eraygaWords.length} words inserted successfully`, 'success');
+            })
+            .catch(function(xhr) {
                 Swal.fire('Error', xhr.responseJSON.error || 'Failed to save Erayga Hadalka', 'error');
-            }
-        });
+            });
     });
 
     // Show the Edit Modal with pre-filled data

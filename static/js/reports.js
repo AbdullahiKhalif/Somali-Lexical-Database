@@ -45,7 +45,7 @@ $(document).ready(function() {
         const rows = document.querySelectorAll("#reportsTable tr");
 
         // Add headers
-        const headers = ["Id", "Asalka_Erayga", "Farac_Erayada", "Qaybta_hadalka"];
+        const headers = ["Id", "Root_Word", "Descendant_Words", "Part_of_Speech"];
         csv.push(headers.join(","));
 
         for (let i = 1; i < rows.length; i++) {  // Start from 1 to skip headers

@@ -124,39 +124,58 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
-# Dashboard Route
 @app.route('/dashboard_data')
 def dashboard_data():
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
 
     user_id = session['id']  # Get the current user's ID from the session
+    user_role = session['userRole']  # Get the current user's role from the session
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Total Users
-    cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+    # Total Users (only for Admin and Moderator)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_users FROM users")
     total_users = cursor.fetchone()['total_users']
 
-    # Total Admins
-    cursor.execute("SELECT COUNT(*) AS total_admins FROM users WHERE userRole = 'Admin'")
+    # Total Admins (only for Admin and Moderator)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_admins FROM users WHERE userRole = 'Admin'")
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_admins FROM users WHERE id = %s AND userRole = 'Admin'", (user_id,))
     total_admins = cursor.fetchone()['total_admins']
 
-    # Gender Distribution
-    cursor.execute("SELECT gender, COUNT(*) AS count FROM users GROUP BY gender")
+    # Gender Distribution (only for Admin and Moderator)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT gender, COUNT(*) AS count FROM users GROUP BY gender")
+    else:
+        cursor.execute("SELECT gender, COUNT(*) AS count FROM users GROUP BY gender")
     gender_distribution = cursor.fetchall()
 
-    # Age Distribution
-    cursor.execute("SELECT age, COUNT(*) AS count FROM users GROUP BY age")
+    # Age Distribution (only for Admin and Moderator)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT age, COUNT(*) AS count FROM users GROUP BY age")
+    else:
+        cursor.execute("SELECT age, COUNT(*) AS count FROM users GROUP BY age")
     age_distribution = cursor.fetchall()
 
-    # Total Asalka Ereyada for the current user
-    cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada WHERE userId = %s", (user_id,))
+    # Total Asalka Ereyada for the current user (always limited to the current user)
+    # Total Asalka Ereyada (Admin/Moderator can see all, regular user only their own)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada")
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada WHERE userId = %s", (user_id,))
     total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
 
-    # Total Faraca Erayada in erayga_hadalka for the current user
-    cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka WHERE userId = %s", (user_id,))
+    # Total Faraca Erayada (Admin/Moderator can see all, regular user only their own)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka")
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka WHERE userId = %s", (user_id,))
     total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
 
     cursor.close()
@@ -735,6 +754,15 @@ def get_erayga_hadalka(id):
         conn.close()
         return jsonify({'error': 'Record not found or you do not have permission to view it'}), 404
 
+    asalka_erayga_id = erayga_data['Asalka_erayga']  # Get the Asalka_erayga ID for this record
+
+    # Fetch all Erayga words that share the same Asalka_erayga
+    cursor.execute("SELECT Erayga FROM erayga_hadalka WHERE Asalka_erayga = %s", (asalka_erayga_id,))
+    related_erayga_words = cursor.fetchall()
+
+    # Join the related words with commas
+    related_erayga_words_str = ', '.join([row['Erayga'] for row in related_erayga_words])
+
     # Admins and Moderators can view all Asalka Erayga options, regular users only see their own
     if user_role == 'Admin' or user_role == 'Moderator':
         cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada")
@@ -748,9 +776,9 @@ def get_erayga_hadalka(id):
 
     return jsonify({
         'erayga_data': erayga_data,
+        'related_erayga_words': related_erayga_words_str,  # Return the related Erayga words as a string
         'asalka_options': asalka_options
     })
-
 
 @app.route('/createErayga', methods=['POST'])
 def create_erayga_hadalka():
@@ -773,34 +801,45 @@ def create_erayga_hadalka():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Check if the word already exists in the `erayga_hadalka` table
-    cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s", (Erayga,))
-    existing_record = cursor.fetchone()
+    # Split the Erayga input by both commas and spaces to get individual words
+    erayga_words = re.split(r'[,\s]+', Erayga.strip())
 
-    if existing_record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'The word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
+    # Initialize counter for inserted words
+    inserted_count = 0
 
-    # Check if the Asalka_Erayga already exists in `asalka_ereyada`
-    cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s", (Erayga,))
-    existing_asalka_record = cursor.fetchone()
+    # Iterate over each word and insert it as a unique row
+    for word in erayga_words:
+        # Check if the word already exists in the `erayga_hadalka` table
+        cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s", (word,))
+        existing_record = cursor.fetchone()
 
-    if existing_asalka_record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'This  already exists in the system as Asalka erayada! Please use another one.'}), 400
+        if existing_record:
+            continue  # Skip the word if it already exists in the table
 
-    # Proceed with inserting the new record
-    cursor.execute(
-        "INSERT INTO erayga_hadalka (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, userId) VALUES (%s, %s, %s, %s, %s)",
-        (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, user_id)
-    )
+        # Check if the Asalka_Erayga already exists in `asalka_ereyada`
+        cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s", (word,))
+        existing_asalka_record = cursor.fetchone()
+
+        if existing_asalka_record:
+            continue  # Skip the word if it already exists in Asalka
+
+        # Proceed with inserting the new word
+        cursor.execute(
+            "INSERT INTO erayga_hadalka (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, userId) "
+            "VALUES (%s, %s, %s, %s, %s)",
+            (word, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, user_id)
+        )
+        inserted_count += 1  # Increment the counter
+
+    # Commit the transaction to the database
     conn.commit()
     cursor.close()
     conn.close()
 
-    return jsonify({'message': 'Record created successfully'}), 201
+    # Return a success message with the number of inserted words
+    return jsonify({
+        'message': f'Record created successfully with {inserted_count} words inserted.'
+    }), 201
 
 @app.route('/updateErayga/<int:id>', methods=['PUT'])
 def update_erayga_hadalka(id):
@@ -819,56 +858,61 @@ def update_erayga_hadalka(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch the existing record and its owner
-    cursor.execute("SELECT userId FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
-    existing_record = cursor.fetchone()
+    # Check if the user has permission to update
+    if user_role == 'User':
+        cursor.execute("SELECT userId FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
+        record = cursor.fetchone()
+        if not record or record['userId'] != user_id:
+            cursor.close()
+            conn.close()
+            return jsonify({'error': 'Permission denied: You can only update your own records'}), 403
 
-    if not existing_record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Record not found'}), 404
+    # Split the new Erayga input by both commas and spaces to get individual words
+    new_erayga_words = re.split(r'[,\s]+', Erayga.strip())
 
-    # Role-based permissions
-    if user_role == 'User' and existing_record['userId'] != user_id:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Permission denied: You can only update your own records'}), 403
-    elif user_role == 'Moderator':
-        # Moderators can only update records, no insert or delete
-        pass  # No additional check required since they can only update
-    elif user_role != 'Admin':
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'Permission denied'}), 403
+    # Fetch existing Erayga words for this record
+    cursor.execute("SELECT Erayga FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
+    existing_erayga_words = [row['Erayga'] for row in cursor.fetchall()]
 
-    # Check if the word is already recorded in erayga_hadalka for a different record
-    cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s AND Aqoonsiga_erayga != %s", (Erayga, id))
-    existing_erayga = cursor.fetchone()
+    # Words to add (new words that don't already exist)
+    words_to_add = set(new_erayga_words) - set(existing_erayga_words)
 
-    if existing_erayga:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'The word (Erayga Hadalka) is already recorded! Please enter a new one.'}), 400
+    # Words to delete (existing words not in the updated list)
+    words_to_delete = set(existing_erayga_words) - set(new_erayga_words)
 
-    # Check if the word is recorded in the asalka_ereyada table
-    cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s", (Erayga,))
-    existing_asalka_record = cursor.fetchone()
+    # Update existing words (if needed) and insert new words
+    inserted_count = 0
+    updated_count = 0
 
-    if not existing_asalka_record:
-        cursor.close()
-        conn.close()
-        return jsonify({'error': 'The word is alrady exist as Asalka Erayada! Please choose a valid one.'}), 400
+    # Add new words
+    for word in words_to_add:
+        # Check if the word already exists
+        cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s", (word,))
+        existing_record = cursor.fetchone()
 
-    # Proceed with updating the record
-    cursor.execute(
-        "UPDATE erayga_hadalka SET Erayga = %s, Nooca_erayga = %s, Qeybta_hadalka = %s, Asalka_erayga = %s WHERE Aqoonsiga_erayga = %s",
-        (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, id)
-    )
+        if existing_record:
+            continue  # Skip if the word already exists
+
+        cursor.execute(
+            "INSERT INTO erayga_hadalka (Erayga, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, userId) "
+            "VALUES (%s, %s, %s, %s, %s)",
+            (word, Nooca_erayga, Qeybta_hadalka, Asalka_erayga, user_id)
+        )
+        inserted_count += 1
+
+    # Delete old words that are not in the updated list
+    for word in words_to_delete:
+        cursor.execute("DELETE FROM erayga_hadalka WHERE Erayga = %s AND Aqoonsiga_erayga = %s", (word, id))
+
+    # Commit the transaction to the database
     conn.commit()
     cursor.close()
     conn.close()
 
-    return jsonify({'message': 'Record updated successfully'})
+    # Return a success message with the number of inserted/updated words
+    return jsonify({
+        'message': f'Record updated successfully with {inserted_count} words added and {len(words_to_delete)} words deleted.'
+    }), 200
 
 
 @app.route('/deleteErayga/<int:id>', methods=['DELETE'])
@@ -1057,6 +1101,40 @@ def user_reports():
         cursor.close()
         conn.close()
 
+@app.route('/ereyadaReports')
+def ereyada_reports():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('ereyadaReports.html')
+@app.route('/report', methods=['GET'])
+def report():
+    if 'id' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+    SELECT 
+        eh.Aqoonsiga_erayga, 
+        eh.Erayga, 
+        eh.Nooca_erayga, 
+        qh.Qaybta_hadalka AS Qeybta_hadalka_name, 
+        ae.Erayga_Asalka AS Asalka_erayga_name
+    FROM 
+        erayga_hadalka eh
+        JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
+        JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga
+    ORDER BY ae.Erayga_Asalka ASC
+    """
+    cursor.execute(query)
+
+
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(data)
 
 def is_valid_name(name):
     return bool(re.match("^[a-zA-Z ]+$", name))

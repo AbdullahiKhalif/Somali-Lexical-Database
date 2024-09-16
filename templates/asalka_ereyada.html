@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asalka Ereyada</title>
+    <title>Root Words</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
@@ -19,17 +19,16 @@
                 <div class="card">
                     <div class="card-header">
                         <i class="fa fa-database fs-4 text-primary"></i>
-                        <span class="card-title fs-4">Asalka Ereyada Tables</span>
-                        <h6 class="card-subtitle text-muted">Halkaan waxaad kaga soo dari kartaa asal ereyada, sido kale update iyo delete waa sameyn kartaa!</h6>
+                        <span class="card-title fs-4">Root Words Tables</span>
+                        <h6 class="card-subtitle text-muted">Here you can add root words, as well as update and delete them!</h6>
                         <hr style="border: 1px solid #000;">
                         <div class="float-end">
                             <button type="button" class="btn btn-secondary my-1 m-1" id="uploadAsalka">
                                 Upload Excel File
                             </button>
                             <button type="button" class="btn btn-primary my-1 m-1 float-end" id="addNewAsalka">
-                                Diiwaan geli Asalka Ereyada
+                                Register Root Word
                             </button>
-
                         </div>
                     </div>
                     <div class="card-body">
@@ -39,7 +38,7 @@
                                 <thead class="table">
                                     <tr>
                                         <th>#</th>
-                                        <th>Ereyga Asalka</th>
+                                        <th>Root Word</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -52,18 +51,18 @@
         </div>
     </div>
 
-    <!-- Add Asalka Modal -->
+    <!-- Add Root Word Modal -->
     <div class="modal fade" id="addAsalkaModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addAsalkaModalLabel">Diiwaan Geli Asalka Ereyada</h5>
+                    <h5 class="modal-title" id="addAsalkaModalLabel">Register Root Word</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="addAsalkaForm">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="Erayga_Asalka">Ereyga Asalka</label>
+                            <label for="Erayga_Asalka">Root Word</label>
                             <input type="text" name="Erayga_Asalka" id="Erayga_Asalka" class="form-control" required>
                         </div>
                     </div>
@@ -75,19 +74,20 @@
             </div>
         </div>
     </div>
-    <!-- Edit Asalka Modal -->
+
+    <!-- Edit Root Word Modal -->
     <div class="modal fade" id="editAsalkaModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editAsalkaModalLabel">Edit Asalka Ereyada</h5>
+                    <h5 class="modal-title" id="editAsalkaModalLabel">Edit Root Word</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editAsalkaForm">
                     <div class="modal-body">
                         <input type="hidden" name="Aqonsiga_Erayga" id="editAqonsiga_Erayga">
                         <div class="form-group">
-                            <label for="editErayga_Asalka">Ereyga Asalka</label>
+                            <label for="editErayga_Asalka">Root Word</label>
                             <input type="text" name="Erayga_Asalka" id="editErayga_Asalka" class="form-control" required>
                         </div>
                     </div>
@@ -99,29 +99,30 @@
             </div>
         </div>
     </div>
+
     <!-- Upload File Modal -->
-<div class="modal fade" id="uploadAsalkaModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="uploadAsalkaModalLabel">Upload Asalka Ereyada Excel File</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="uploadAsalkaForm" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="asalkaFile">Choose Excel File</label>
-                        <input type="file" name="asalkaFile" id="asalkaFile" class="form-control" accept=".xlsx, .xls" required>
+    <div class="modal fade" id="uploadAsalkaModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadAsalkaModalLabel">Upload Root Words Excel File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="uploadAsalkaForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="asalkaFile">Choose Excel File</label>
+                            <input type="file" name="asalkaFile" id="asalkaFile" class="form-control" accept=".xlsx, .xls" required>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </main>
 
 {% include 'footer.html' %}

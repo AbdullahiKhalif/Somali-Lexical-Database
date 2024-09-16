@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qeybaha hadalka</title>
+    <title>Parts of Speech</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
@@ -19,11 +19,11 @@
                 <div class="card">
                     <div class="card-header">
                         <i class="fa fa-user fs-4 text-primary"></i>
-                        <span class="card-title fs-4">Part of Speech Tables</span>
-                        <h6 class="card-subtitle text-muted">Halkaaan waxaad kaga soo dari kartaa qeybaha hadalka, sido kale update iyo delete waa sameyn kartaa!</h6>
+                        <span class="card-title fs-4">Parts of Speech Table</span>
+                        <h6 class="card-subtitle text-muted">Here you can add parts of speech, as well as update and delete them!</h6>
                         <hr style="border: 1px solid #000;">
                         <button type="button" class="btn btn-primary my-1 float-end" id="addNewQeybaha">
-                            Diiwaan geli Qeybaha Hadalka
+                            Register Part of Speech
                         </button>
                     </div>
                     <div class="card-body">
@@ -32,8 +32,8 @@
                                 <thead class="table">
                                     <tr>
                                         <th>#</th>
-                                        <th>Qeybta Hadalka</th>
-                                        <th>Loo Soo Gaabsho</th>
+                                        <th>Part of Speech</th>
+                                        <th>Abbreviation</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -46,22 +46,22 @@
         </div>
     </div>
 
-    <!-- Add Qeybaha Modal -->
+    <!-- Add Part of Speech Modal -->
     <div class="modal fade" id="addQeybahaModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addQeybahaModalLabel">Diiwaan geli Qeybaha Hadalka</h5>
+                    <h5 class="modal-title" id="addQeybahaModalLabel">Register Part of Speech</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="addQeybahaForm">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="Qaybta_hadalka">Qaybta Hadalka</label>
+                            <label for="Qaybta_hadalka">Part of Speech</label>
                             <input type="text" name="Qaybta_hadalka" id="Qaybta_hadalka" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="Loo_gaabsho">Loo Gaabsho</label>
+                            <label for="Loo_gaabsho">Abbreviation</label>
                             <input type="text" name="Loo_gaabsho" id="Loo_gaabsho" class="form-control" required>
                         </div>
                     </div>
@@ -74,23 +74,23 @@
         </div>
     </div>
 
-    <!-- Edit Qeybaha Modal -->
+    <!-- Edit Part of Speech Modal -->
     <div class="modal fade" id="editQeybahaModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editQeybahaModalLabel">Update garey Qeybaha Hadalka</h5>
+                    <h5 class="modal-title" id="editQeybahaModalLabel">Update Part of Speech</h5>
                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editQeybahaForm">
                     <div class="modal-body">
                         <input type="hidden" name="Aqoonsiga_hadalka" id="editAqoonsiga_hadalka">
                         <div class="form-group">
-                            <label for="editQaybta_hadalka">Qaybta Hadalka</label>
+                            <label for="editQaybta_hadalka">Part of Speech</label>
                             <input type="text" name="Qaybta_hadalka" id="editQaybta_hadalka" class="form-control" required>
                         </div>
                         <div class="form-group">
-                            <label for="editLoo_gaabsho">Loo Gaabsho</label>
+                            <label for="editLoo_gaabsho">Abbreviation</label>
                             <input type="text" name="Loo_gaabsho" id="editLoo_gaabsho" class="form-control" required>
                         </div>
                     </div>

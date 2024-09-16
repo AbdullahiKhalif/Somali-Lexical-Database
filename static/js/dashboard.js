@@ -48,7 +48,7 @@ $(document).ready(function() {
         new Chart(asalkaFaracaChartCtx, {
             type: 'pie',
             data: {
-                labels: ['Total Asalka Ereydada', 'Total Faraca Erayada'],
+                labels: ['Total Root Words', 'Total Descendant Words'],
                 datasets: [{
                     data: [data.total_asalka_ereyada, data.total_faraca_erayada],
                     backgroundColor: ['#17a2b8', '#ffc107'],
