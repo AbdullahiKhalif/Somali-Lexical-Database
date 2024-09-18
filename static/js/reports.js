@@ -18,6 +18,7 @@ $(document).ready(function() {
                             <td>${item.Asalka_erayga}</td>
                             <td>${faracWords}</td>
                             <td>${item.Qaybta_hadalka}</td>
+                            <td>${item.total_farac}</td>
                         </tr>`;
                     });
                 } else {
@@ -45,7 +46,7 @@ $(document).ready(function() {
         const rows = document.querySelectorAll("#reportsTable tr");
 
         // Add headers
-        const headers = ["Id", "Root_Word", "Descendant_Words", "Part_of_Speech"];
+        const headers = ["Id", "Root_Word", "Derivative_Words", "Part_of_Speech", "Total Derivative Words"];
         csv.push(headers.join(","));
 
         for (let i = 1; i < rows.length; i++) {  // Start from 1 to skip headers

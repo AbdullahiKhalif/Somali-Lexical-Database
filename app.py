@@ -46,9 +46,10 @@ def role_required(*allowed_roles):
 # Home Route
 @app.route('/')
 def index():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template('dashboard.html' if session.get('userRole') == 'Admin' else 'index.html')
+    # if 'username' not in session:
+    #     return redirect(url_for('login'))
+    # return render_template('dashboard.html' if session.get('userRole') == 'Admin' else 'index.html')
+    return render_template('index.html')
 
 # Login Route
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,15 +64,31 @@ def login():
         cursor.close()
         conn.close()
 
+        # Check if the user exists and the password matches
         if user and (user['password'] == password):
-            session['username'] = user['name']
-            session['id'] = user['id']
-            session['userRole'] = user['userRole']
-            return redirect(url_for('dashboard')) if user['userRole'] == 'Admin' else redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', error='Invalid email or password')
+            # Check userState conditions
+            if user['userState'] == 'Pending':
+                return render_template('login.html', error='Please wait until the admin approves your account.')
+            elif user['userState'] == 'Decline':
+                return render_template('login.html', error='You cannot use the system. Your request was declined by the admins.')
+            elif user['userState'] == 'Approve':
+                # Check if status is blocked
+                if user['status'] == 'Block':
+                    return render_template('login.html', error='Your account has been blocked. Please contact admin for more information.')
+
+                # If all checks pass, log in the user
+                session['username'] = user['name']
+                session['id'] = user['id']
+                session['userRole'] = user['userRole']
+
+                # Redirect to the dashboard (or relevant page) based on user role
+                return redirect(url_for('dashboard')) if user['userRole'] == 'Admin' else redirect(url_for('dashboard'))
+
+        # If login credentials don't match
+        return render_template('login.html', error='Invalid email or password')
 
     return render_template('login.html')
+
 from flask import jsonify
 
 # Signup Route
@@ -83,6 +100,8 @@ def signup():
         email = request.form['email']
         gender = request.form['gender']
         password = request.form['password']
+        userState = "Pending"
+        status = 'Active'
 
         if not is_valid_name(name):
             return jsonify({'error': 'Invalid name. Please enter a valid name.'}), 400
@@ -102,8 +121,8 @@ def signup():
             conn.close()
             return jsonify({'error': 'Email already exists.'}), 400
 
-        cursor.execute("INSERT INTO users (name, age, gender, email, password) VALUES (%s, %s, %s, %s, %s)",
-                       (name, age, gender, email, password))
+        cursor.execute("INSERT INTO users (name, age, gender, email, password, userState, status) VALUES (%s, %s, %s, %s, %s,%s,%s)",
+                       (name, age, gender, email, password, userState, status))
         conn.commit()
         cursor.close()
         conn.close()
@@ -135,71 +154,184 @@ def dashboard_data():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Total Users (only for Admin and Moderator)
-    if user_role == 'Admin' or user_role == 'Moderator':
+    # Total Users (only for Admin)
+    if user_role == 'Admin':
         cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+        total_users = cursor.fetchone()['total_users']
     else:
-        cursor.execute("SELECT COUNT(*) AS total_users FROM users")
-    total_users = cursor.fetchone()['total_users']
+        total_users = 0  # For User and Moderator, we might not show total users
 
-    # Total Admins (only for Admin and Moderator)
-    if user_role == 'Admin' or user_role == 'Moderator':
+    # Total Admins (only for Admin)
+    if user_role == 'Admin':
         cursor.execute("SELECT COUNT(*) AS total_admins FROM users WHERE userRole = 'Admin'")
+        total_admins = cursor.fetchone()['total_admins']
     else:
-        cursor.execute("SELECT COUNT(*) AS total_admins FROM users WHERE id = %s AND userRole = 'Admin'", (user_id,))
-    total_admins = cursor.fetchone()['total_admins']
+        total_admins = 0  # Default to 0 for User and Moderator
 
-    # Gender Distribution (only for Admin and Moderator)
-    if user_role == 'Admin' or user_role == 'Moderator':
+    # Total Moderators (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_moderators FROM users WHERE userRole = 'Moderator'")
+        total_moderators = cursor.fetchone()['total_moderators']
+    else:
+        total_moderators = 0  # Default to 0 for User and Moderator
+
+    # Total Regular Users (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_regular_users FROM users WHERE userRole = 'User'")
+        total_regular_users = cursor.fetchone()['total_regular_users']
+    else:
+        total_regular_users = 0  # Default to 0 for User and Moderator
+
+    # Total Active Users (status = 'Active')
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_actives FROM users WHERE status = 'Active'")
+        total_actives = cursor.fetchone()['total_actives']
+    else:
+        total_actives = 0  # Default for User and Moderator
+
+    # Total Blocked Users (status = 'Block')
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_blocks FROM users WHERE status = 'Block'")
+        total_blocks = cursor.fetchone()['total_blocks']
+    else:
+        total_blocks = 0  # Default for User and Moderator
+
+    # Total Approved Users (userState = 'Approve')
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_approved FROM users WHERE userState = 'Approve'")
+        total_approved = cursor.fetchone()['total_approved']
+    else:
+        total_approved = 0  # Default for User and Moderator
+
+    # Total Declined Users (userState = 'Decline')
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_declined FROM users WHERE userState = 'Decline'")
+        total_declined = cursor.fetchone()['total_declined']
+    else:
+        total_declined = 0  # Default for User and Moderator
+
+    # Total Pending Users (userState = 'Pending')
+    if user_role == 'Admin':
+        cursor.execute("SELECT COUNT(*) AS total_pendings FROM users WHERE userState = 'Pending'")
+        total_pendings = cursor.fetchone()['total_pendings']
+    else:
+        total_pendings = 0  # Default for User and Moderator
+
+    # Gender Distribution (only for Admin)
+    if user_role == 'Admin':
         cursor.execute("SELECT gender, COUNT(*) AS count FROM users GROUP BY gender")
+        gender_distribution = cursor.fetchall()
     else:
-        cursor.execute("SELECT gender, COUNT(*) AS count FROM users GROUP BY gender")
-    gender_distribution = cursor.fetchall()
+        gender_distribution = []  # Empty for User and Moderator
 
-    # Age Distribution (only for Admin and Moderator)
-    if user_role == 'Admin' or user_role == 'Moderator':
+    # Age Distribution (only for Admin)
+    if user_role == 'Admin':
         cursor.execute("SELECT age, COUNT(*) AS count FROM users GROUP BY age")
+        age_distribution = cursor.fetchall()
     else:
-        cursor.execute("SELECT age, COUNT(*) AS count FROM users GROUP BY age")
-    age_distribution = cursor.fetchall()
+        age_distribution = []  # Empty for User and Moderator
 
-    # Total Asalka Ereyada for the current user (always limited to the current user)
-    # Total Asalka Ereyada (Admin/Moderator can see all, regular user only their own)
+    # Total Asalka Ereyada for current user (User/Moderator see their own, Admin sees all)
     if user_role == 'Admin' or user_role == 'Moderator':
         cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada")
+        total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
     else:
         cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada WHERE userId = %s", (user_id,))
-    total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
+        total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
 
-    # Total Faraca Erayada (Admin/Moderator can see all, regular user only their own)
+    # Total Faraca Erayada (User/Moderator see their own, Admin sees all)
     if user_role == 'Admin' or user_role == 'Moderator':
         cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka")
+        total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
     else:
         cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka WHERE userId = %s", (user_id,))
-    total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+        total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+
+    # Maximum number of derivatives (Faraca) for any Asalka_Erayga (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("""
+            SELECT MAX(farac_count) AS max_derivatives
+            FROM (
+                SELECT COUNT(*) AS farac_count
+                FROM erayga_hadalka
+                GROUP BY Asalka_erayga
+            ) AS derived
+        """)
+        max_derivatives = cursor.fetchone()['max_derivatives']
+    else:
+        max_derivatives = 0  # Default for User and Moderator
+
+    # Minimum number of derivatives (Faraca) for any Asalka_Erayga (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("""
+            SELECT MIN(farac_count) AS min_derivatives
+            FROM (
+                SELECT COUNT(*) AS farac_count
+                FROM erayga_hadalka
+                GROUP BY Asalka_erayga
+            ) AS derived
+        """)
+        min_derivatives = cursor.fetchone()['min_derivatives']
+    else:
+        min_derivatives = 0  # Default for User and Moderator
+
+    # User Role Distribution (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("SELECT userRole, COUNT(*) AS count FROM users GROUP BY userRole")
+        user_role_distribution = cursor.fetchall()
+    else:
+        user_role_distribution = []
+
+    # User State Distribution (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("SELECT userState, COUNT(*) AS count FROM users GROUP BY userState")
+        user_state_distribution = cursor.fetchall()
+    else:
+        user_state_distribution = []
+
+    # User Status Distribution (only for Admin)
+    if user_role == 'Admin':
+        cursor.execute("SELECT status, COUNT(*) AS count FROM users GROUP BY status")
+        user_status_distribution = cursor.fetchall()
+    else:
+        user_status_distribution = []  # Default empty for User and Moderator
+
 
     cursor.close()
     conn.close()
 
     return jsonify({
+        'user_role': user_role,
         'total_users': total_users,
         'total_admins': total_admins,
+        'total_moderators': total_moderators,
+        'total_regular_users': total_regular_users,
+        'total_actives': total_actives,
+        'total_blocks': total_blocks,
+        'total_approved': total_approved,
+        'total_declined': total_declined,
+        'total_pendings': total_pendings,
         'gender_distribution': gender_distribution,
         'age_distribution': age_distribution,
         'total_asalka_ereyada': total_asalka_ereyada,
-        'total_faraca_erayada': total_faraca_erayada
+        'total_faraca_erayada': total_faraca_erayada,
+        'max_derivatives': max_derivatives,  
+        'min_derivatives': min_derivatives,
+        'user_role_distribution': user_role_distribution,
+        'user_state_distribution': user_state_distribution,
+        'user_status_distribution': user_status_distribution 
     })
 
 
 @app.route('/users')
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def users():
     if 'username' not in session:
         return redirect(url_for('login'))
     return render_template('users.html')
 
 @app.route('/get_users', methods=['GET'])
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def get_users():
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -213,7 +345,7 @@ def get_users():
     return jsonify(users)
 
 @app.route('/get_user/<int:user_id>', methods=['GET'])
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def get_user(user_id):
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -247,6 +379,8 @@ def add_user():
         email = data['email']
         password = data['password']
         userRole = data['userRole']
+        userState = data['userState']
+        status = data['status']
 
         if not is_valid_name(username):
             return jsonify(
@@ -263,8 +397,8 @@ def add_user():
             conn.close()
             return jsonify({'error': 'Email already exists'}), 400
 
-        cursor.execute("INSERT INTO users (name, age, gender, userRole,email, password) VALUES (%s, %s,%s, %s, %s, %s)",
-                       (username, age, gender, userRole, email, password))
+        cursor.execute("INSERT INTO users (name, age, gender, userRole,email, password, userState, status) VALUES (%s, %s,%s, %s, %s, %s,%s,%s)",
+                       (username, age, gender, userRole, email, password, userState, status))
         conn.commit()
         cursor.close()
         conn.close()
@@ -273,8 +407,9 @@ def add_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/edit_user/<int:user_id>', methods=['POST'])
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def edit_user(user_id):
     if 'username' not in session:
         return jsonify({'error': 'User not logged in'}), 403
@@ -283,47 +418,53 @@ def edit_user(user_id):
 
     try:
         data = request.form
-        username = data['name']
-        age = int(data['age'])
-        gender = data['gender']
-        email = data['email']
-        password = data['password']
-        roll = data['userRole']
+        username = data.get('name')
+        age = data.get('age', type=int)
+        gender = data.get('gender')
+        email = data.get('email')
+        password = data.get('password')
+        userRole = data.get('userRole')
+        userState = data.get('userState')
+        status = data.get('status')
 
+        # Validate username
         if not is_valid_name(username):
-            return jsonify(
-                {'error': 'Invalid username. Only letters, numbers, underscores, and hyphens are allowed.'}), 400
+            return jsonify({'error': 'Invalid username. Only letters, numbers, underscores, and hyphens are allowed.'}), 400
 
-        conn = mysql.connector.connect(**mysql_config)
-        cursor = conn.cursor(dictionary=True)
-
-
-        if age > 70 or age < 18:
+        # Validate age range
+        if age is None or age < 18 or age > 70:
             return jsonify({'error': 'Age must be between 18 and 70.'}), 400
 
+        # Check for duplicate email
+        conn = mysql.connector.connect(**mysql_config)
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE email = %s AND id != %s", (email, user_id))
         if cursor.fetchone():
             cursor.close()
             conn.close()
             return jsonify({'error': 'Email already exists for another user'}), 400
 
-        cursor.execute("UPDATE users SET name = %s, age = %s, gender = %s, userRole = %s, email = %s , password = %s WHERE id = %s",
-                       (username, age, gender, roll, email, password, user_id))
+        # Update user details
+        cursor.execute("""
+            UPDATE users 
+            SET name = %s, age = %s, gender = %s, userRole = %s, email = %s, password = %s, userState = %s, status = %s 
+            WHERE id = %s
+        """, (username, age, gender, userRole, email, password, userState, status, user_id))
+
         conn.commit()
         cursor.close()
         conn.close()
 
         return jsonify({'message': 'User updated successfully'}), 200
 
-    except Exception as e:
-        logging.error(f"Error updating user: {str(e)}")
-        return jsonify({'error': 'An error occurred while updating the user.'}), 500
+    except mysql.connector.Error as err:
+        logging.error(f"MySQL Error: {err}")
+        return jsonify({'error': f"MySQL Error: {str(err)}"}), 500
 
-        logging.debug(f"User with ID: {user_id} updated successfully")
-        return jsonify({'message': 'User updated successfully'})
     except Exception as e:
-        logging.error(f"Error updating user with ID: {user_id} - {e}")
-        return jsonify({'error': str(e)}), 500
+        logging.error(f"Error editing user: {e}")
+        return jsonify({'error': f"Error: {str(e)}"}), 500
+
 
 @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 @role_required('Admin')
@@ -979,7 +1120,8 @@ def reports_data():
                 ae.Aqonsiga_Erayga,
                 ae.Erayga_Asalka AS Asalka_erayga,
                 GROUP_CONCAT(eh.Erayga SEPARATOR ', ') AS Farac,
-                qh.Qaybta_hadalka
+                qh.Qaybta_hadalka,
+                COUNT(eh.Erayga) AS total_farac  -- New column to count Farac words
             FROM 
                 erayga_hadalka eh
                 JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
@@ -998,7 +1140,8 @@ def reports_data():
                 ae.Aqonsiga_Erayga,
                 ae.Erayga_Asalka AS Asalka_erayga,
                 GROUP_CONCAT(eh.Erayga SEPARATOR ', ') AS Farac,
-                qh.Qaybta_hadalka
+                qh.Qaybta_hadalka,
+                COUNT(eh.Erayga) AS total_farac  -- New column to count Farac words
             FROM 
                 erayga_hadalka eh
                 JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
@@ -1016,7 +1159,8 @@ def reports_data():
             ae.Aqonsiga_Erayga,
             ae.Erayga_Asalka AS Asalka_erayga,
             GROUP_CONCAT(eh.Erayga SEPARATOR ', ') AS Farac,
-            qh.Qaybta_hadalka
+            qh.Qaybta_hadalka,
+            COUNT(eh.Erayga) AS total_farac  -- New column to count Farac words
         FROM 
             erayga_hadalka eh
             JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
@@ -1035,7 +1179,7 @@ def reports_data():
     return jsonify(data)
 
 @app.route('/reportsRootWords')
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def reports_root():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -1062,7 +1206,7 @@ def get_all_asalka_ereyada_ordered_by_username():
         conn.close()
 
 @app.route('/userReports')
-@role_required('Admin', 'Moderator')
+@role_required('Admin')
 def usersReports():
     if 'username' not in session:
         return redirect(url_for('login'))

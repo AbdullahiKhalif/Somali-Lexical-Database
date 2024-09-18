@@ -28,7 +28,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="userTable" class="table table-striped DataTableResponsive" style="width:100%">
+                            <table id="userTable" class="table  DataTableResponsive" style="width:100%">
                                 <thead class="table">
                                     <tr>
                                         <th>#</th>
@@ -37,6 +37,8 @@
                                         <th>Gender</th>
                                         <th>Email</th>
                                         <th>Password</th>
+                                        <th>User State</th>
+                                        <th>Status</th>
                                         <th>User Role</th>
                                         <th>Join Date</th>
                                         <th>Action</th>
@@ -91,6 +93,22 @@
                             <div class="form-group">
                                 <label for="password" class="fw-bold text-dark">Password <span class="text-muted">*</span></label>
                                 <input type="password" name="password" id="addPassword" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="userState" class="fw-bold text-dark">Select User State:  <span class="text-muted">*</span></label>
+                                <select class="form-control" name="userState" id="addUserState">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approve">Approve</option>
+                                    <option value="Decline">Decline</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="Status" class="fw-bold text-dark">Select Status:  <span class="text-muted">*</span></label>
+                                <select class="form-control" name="status" id="addStatus">
+                                    <option value="Active">Active</option>
+                                    <option value="Block">Block</option>
+                                
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="gender" class="fw-bold text-dark">Select Gender:  <span class="text-muted">*</span></label>
@@ -150,6 +168,22 @@
                         <div class="form-group">
                             <label for="editPassword" class="fw-bold text-dark">Password <span class="text-muted">*</span></label>
                             <input type="password" name="password" id="editPassword" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserState" class="fw-bold text-dark">Select User State: <span class="text-muted">*</span></label>
+                            <select class="form-control" name="userState" id="editUserState">
+                                <option value="Pending">Pending</option>
+                                    <option value="Approve">Approve</option>
+                                    <option value="Decline">Decline</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserStatus" class="fw-bold text-dark">Select Status: <span class="text-muted">*</span></label>
+                            <select class="form-control" name="status" id="editUserStatus">
+                                <option value="Active">Active</option>
+                                    <option value="Block">Block</option>
+                                   
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="editUserRole" class="fw-bold text-dark">Select Role: <span class="text-muted">*</span></label>
