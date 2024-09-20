@@ -1,108 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Future Gold Price Prediction</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
-  <!-- Custom CSS -->
-  <style>
-    body{
-      overflow-x: hidden;
-    }
-    /* Add custom styles here */
-    .navbar-toggler-icon {
-      color: white !important;
-    }
-    .img{
-      height: 15rem;
-      width: 100%;
-      object-fit: cover;
-      filter: grayscale(0);
-      transition: .2s;
-    }
-    a{
-      text-decoration: none !important;
-    }
-    .img:hover{
-      filter: grayscale();
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Somali Lexical Database</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      .hero-section {
+        background: linear-gradient(
+           to right,
+            rgb(0, 131, 109, 0.9),
+            rgb(0, 131, 109, 0.8)
+          ),
+          url('{{ url_for("static", filename="images/somali-hero-bg.png") }}')
+            no-repeat center center/cover;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-align: center;
+      }
 
-    .icons a{
-    font-size: 1.5rem;
-    padding: 1.5rem .5rem;
-    color:#FF046F;
-  }
-  .icons a:hover{
-    color: #C63BFA;
-  }
-  </style>
-</head>
-<body>
+      .feature-icon {
+        font-size: 3rem;
+        color: #00835F;
+        margin-bottom: 15px;
+      }
+      .feature-card {
+        transition: all 0.3s;
+      }
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .footer {
+        background-color: #00835F;
+        color: #fff;
+        padding: 20px 0;
+      }
+      .footer a {
+        color: #00835F;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light shodow">
+      <div class="container">
+        <a class="navbar-brand text-dark fw-bold" href="#">
+          <img
+            src="{{ url_for('static', filename='/images/logo.PNG') }}"
+            alt="Logo"
+            style="height: 40px; margin-right: 10px"
+          />
+          Somali Lexical <span class="text-success">Database</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-bold active" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-bold" href="#features"
+                >Features</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-bold" href="#contact">Contact</a>
+            </li>
+          </ul>
 
-<!-- Logo and Navigation Section -->
-<nav class="navbar navbar-expand-lg navbar-light shadow-lg sticky-top" style="background-color: rgb(170, 32, 55); color: #fff;">
-  <div class="container">
-    <a class="navbar-brand" href="#">
-      <h1 class="fs-5 fw-bold text-light">Part of<span class="text-warning"> Speech</span></h1>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon" style="color: white;"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto fs-6">
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#home">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#about-us">About Us</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-light" href="#prediction">Prediction</a>
-        </li>
-       {% if 'username' in session %}
-                        <li class="nav-item">
-                            <a class="nav-link text-info fw-bold" href="#">Welcome, {{ session['username'][0:10] }}!</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-warning fw-bold" href="{{ url_for('logout') }}"><i class="fa fa-power-off"></i> Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                        </li>
-                    {% endif %}
-        <!-- Add more navigation links as needed -->
-      </ul>
-      <!-- Add a call-to-action button here if desired -->
-    </div>
-  </div>
-</nav>
-
-<section>
-      {% if 'username' in session %}
-        <div class="container mt-5">
-            <div class="text-center">
-               <h4 class="text-muted fw-bold"> Welcome Eng. {{ session['username'] }}!</h4>
-            </div>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link text-dark fw-bold bg-"
+                href="{{ url_for('login') }}"
+                >Sign in</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('signup') }}"
+                ><span class="bg-success p-2 rounded text-light"
+                  >Signup</span
+                ></a
+              >
+            </li>
+          </ul>
         </div>
-        {% endif %}
-</section>
+      </div>
+    </nav>
 
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="display-4 fw-bold">
+          Welcome to the Somali Lexical Database
+        </h1>
+        <p class="lead">
+          A comprehensive resource for exploring and understanding the richness
+          of the Somali language.
+        </p>
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg"
+          >Get Started</a
+        >
+      </div>
+    </section>
 
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+      <div class="container">
+        <h2 class="text-center mb-5">Features</h2>
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-book-open feature-icon"></i>
+              <h4 class="card-title">Comprehensive Lexicon</h4>
+              <p class="card-text">
+                Explore a vast collection of root words, derivatives, and their
+                meanings in the Somali language.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-language feature-icon"></i>
+              <h4 class="card-title">Grammatical Analysis</h4>
+              <p class="card-text">
+                Access detailed grammatical information for words, including
+                part of speech and usage examples.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-chart-bar feature-icon"></i>
+              <h4 class="card-title">Data Insights</h4>
+              <p class="card-text">
+                Visualize language trends and patterns with interactive charts
+                and reports.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-users feature-icon"></i>
+              <h4 class="card-title">Community Contributions</h4>
+              <p class="card-text">
+                Participate in building the database by submitting new words and
+                corrections.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-book-reader feature-icon"></i>
+              <h4 class="card-title">Educational Resources</h4>
+              <p class="card-text">
+                Access learning materials and resources for students and
+                educators.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card feature-card p-4 text-center">
+              <i class="fas fa-globe feature-icon"></i>
+              <h4 class="card-title">Multilingual Support</h4>
+              <p class="card-text">
+                Experience the database in multiple languages, including Somali
+                and English.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Contact Section -->
+    <section id="contact" class="py-5 bg-light">
+      <div class="container">
+        <h2 class="text-center mb-5">Contact Us</h2>
+        <div class="row">
+          <div class="col-lg-6 mb-4">
+            <h4>Get in Touch</h4>
+            <p>
+              For any inquiries or support, please feel free to reach out to us.
+              We are here to help you with any questions or issues you may have.
+            </p>
+            <p>
+              <i class="fas fa-envelope"></i> <a href="#">Email: gedi@just.edu.so</a>
+            </p>
+            <p><i class="fas fa-phone"></i> Phone: +252 61 5805013</p>
+          </div>
+          <div class="col-lg-6">
+            <form>
+              <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  placeholder="Your Name"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  placeholder="Your Email"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="message" class="form-label">Message</label>
+                <textarea
+                  class="form-control"
+                  id="message"
+                  rows="4"
+                  placeholder="Your Message"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- Bootstrap Bundle with JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/js/app.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Script for handling form submission and custom validation -->
-  
-</body>
+    <!-- Footer -->
+    <footer class="footer text-center py-4">
+      <div class="container">
+        <p>&copy; 2024 Somali Lexical Database. All Rights Reserved.</p>
+        <p>
+          Follow us on
+          <a href="#"><i class="fab fa-facebook text-light"></i></a>
+          <a href="#"><i class="fab fa-twitter text-light"></i></a>
+          <a href="#"><i class="fab fa-linkedin text-light"></i></a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
