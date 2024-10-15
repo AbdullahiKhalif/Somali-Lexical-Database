@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Somali Lexical Database</title>
+    <!-- Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000; /* Ensure it is on top */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+      }
+
+      .hero-section {
+        background: linear-gradient(
+            to right,
+            rgba(0, 131, 109, 0.9),
+            rgba(0, 131, 109, 0.8)
+          ),
+          url('{{ url_for("static", filename="images/somali-hero-bg.png") }}')
+            no-repeat center center/cover;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-align: center;
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        color: #00835f;
+        margin-bottom: 15px;
+      }
+      .feature-card {
+        transition: all 0.3s;
+      }
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .footer {
+        background-color: #00835f;
+        color: #fff;
+        padding: 20px 0;
+      }
+      .footer a {
+        color: #00835f;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar bg-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a class="text-dark font-bold text-lg" href="#">
+          <img
+            src="{{ url_for('static', filename='/images/logo.PNG') }}"
+            alt="Logo"
+            class="inline-block h-10 mr-2"
+          />
+          Somali Lexical <span class="text-green-600">Database</span>
+        </a>
+        <div class="flex items-center space-x-4">
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('index') }}"
+            >Home</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('article') }}"
+            >Aricle</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('features') }}"
+            >Features</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('contact') }}"
+            >Contact</a
+          >
+          <a
+          class="text-dark font-bold hover:text-green-600"
+          href="{{ url_for('search') }}"
+          >Search</a
+        >
+          <a
+            class="text-dark px-4 py-1 rounded-md"
+            href="{{ url_for('login') }}"
+            >Sign in</a
+          >
+          <a
+            class="bg-green-600 text-white px-4 py-1 rounded-md hover:bg-green-700 transition"
+            href="{{ url_for('signup') }}"
+            >Signup</a
+          >
+        </div>
+      </div>
+    </nav>
+
+
+     <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-gray-100">
+        <div class="container mx-auto p-8">
+          <h2 class="text-3xl font-bold text-center mb-12">Contact Us</h2>
+          <div class="flex flex-wrap -mx-4">
+            <div class="w-full md:w-1/2 px-4 mb-8 md:mb-0">
+              <h4 class="text-xl font-semibold mb-4">Get in Touch</h4>
+              <p class="mb-4">
+                For any inquiries or support, please feel free to reach out to us.
+                We are here to help you with any questions or issues you may have.
+              </p>
+              <p class="mb-4">
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:gedi@just.edu.so" class="text-blue-600"
+                  >gedi@just.edu.so</a
+                >
+              </p>
+              <p><i class="fas fa-phone"></i> Phone: +252 61 5805013</p>
+            </div>
+            <div class="w-full md:w-1/2 px-4">
+              <form>
+                <div class="mb-4">
+                  <label for="name" class="block text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    class="w-full p-3 border border-gray-300 rounded-md"
+                    placeholder="Your Name"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="email" class="block text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="w-full p-3 border border-gray-300 rounded-md"
+                    placeholder="Your Email"
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="message" class="block text-gray-700">Message</label>
+                  <textarea
+                    id="message"
+                    class="w-full p-3 border border-gray-300 rounded-md"
+                    rows="4"
+                    placeholder="Your Message"
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- Footer -->
+    <footer class="footer text-center py-4 bg-green-600 text-white">
+      <div class="container mx-auto">
+        <p>&copy; 2024 Somali Lexical Database. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Include Tailwind JS -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js"></script>
+  </body>
+</html>

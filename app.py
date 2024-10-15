@@ -46,11 +46,23 @@ def role_required(*allowed_roles):
 # Home Route
 @app.route('/')
 def index():
-    # if 'username' not in session:
-    #     return redirect(url_for('login'))
-    # return render_template('dashboard.html' if session.get('userRole') == 'Admin' else 'index.html')
     return render_template('index.html')
 
+@app.route('/articles')
+def article():
+    return render_template('article.html')
+
+@app.route('/features')
+def features():
+    return render_template('features.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/search')
+def search():
+    return render_template('search.html')
 # Login Route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -297,6 +309,23 @@ def dashboard_data():
         user_status_distribution = []  # Default empty for User and Moderator
 
 
+    # Total Root Words (Asal) that are used in Derived Words (Farac)
+    cursor.execute("""
+        SELECT COUNT(DISTINCT Asalka_erayga) AS total_asalka_with_farac
+        FROM erayga_hadalka
+        WHERE Asalka_erayga IN (SELECT Asalka_erayga FROM asalka_ereyada)
+    """)
+    total_asalka_with_farac = cursor.fetchone()['total_asalka_with_farac']
+
+    # Total Derived Words (Farac) that have corresponding Root Words (Asal)
+    cursor.execute("""
+        SELECT COUNT(*) AS total_farac_with_asal
+        FROM erayga_hadalka
+        WHERE Asalka_erayga IN (SELECT Asalka_erayga FROM asalka_ereyada)
+    """)
+    total_farac_with_asal = cursor.fetchone()['total_farac_with_asal']
+
+
     cursor.close()
     conn.close()
 
@@ -319,7 +348,9 @@ def dashboard_data():
         'min_derivatives': min_derivatives,
         'user_role_distribution': user_role_distribution,
         'user_state_distribution': user_state_distribution,
-        'user_status_distribution': user_status_distribution 
+        'user_status_distribution': user_status_distribution ,
+        'total_asalka_with_farac': total_asalka_with_farac, 
+        'total_farac_with_asal': total_farac_with_asal 
     })
 
 
@@ -770,7 +801,6 @@ def upload_asalka_ereyada():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        # Process the file
         try:
             # Determine the file extension and choose the appropriate method
             if filename.endswith('.xls'):
@@ -785,20 +815,30 @@ def upload_asalka_ereyada():
             if 'Erayga_Asalka' not in df.columns:
                 return jsonify({'error': 'The file must contain an "Erayga_Asalka" column.'}), 400
 
+            # Remove rows with NaN values in the 'Erayga_Asalka' column
+            df = df.dropna(subset=['Erayga_Asalka'])
+
+            # Normalize Erayga_Asalka to lowercase to handle case insensitivity
+            df['Erayga_Asalka'] = df['Erayga_Asalka'].astype(str).str.strip().str.lower()
+
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
 
+            # Retrieve existing Erayga_Asalka in a case-insensitive manner
+            cursor.execute("SELECT LOWER(Erayga_Asalka) AS Erayga_Asalka FROM asalka_ereyada")
+            existing_erayga_asalka = set([record['Erayga_Asalka'] for record in cursor.fetchall()])
+
+            # Iterate over the DataFrame rows and insert unique records only
             for _, row in df.iterrows():
                 erayga_asalka = row['Erayga_Asalka']
 
-                # Check if the word is already recorded by the user
-                cursor.execute("SELECT * FROM asalka_ereyada WHERE Erayga_Asalka = %s AND userId = %s",
-                               (erayga_asalka, session['id']))
-                existing_record = cursor.fetchone()
-
-                if not existing_record:
-                    cursor.execute("INSERT INTO asalka_ereyada (Erayga_Asalka, userId) VALUES (%s, %s)",
-                                   (erayga_asalka, session['id']))
+                # Insert only if Erayga_Asalka is not in the existing records
+                if erayga_asalka not in existing_erayga_asalka:
+                    cursor.execute(
+                        "INSERT INTO asalka_ereyada (Erayga_Asalka, userId) VALUES (%s, %s)",
+                        (erayga_asalka, session['id'])
+                    )
+                    existing_erayga_asalka.add(erayga_asalka)  # Add to the set to avoid future duplicates
 
             conn.commit()
             cursor.close()

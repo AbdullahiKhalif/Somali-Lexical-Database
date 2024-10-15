@@ -80,13 +80,13 @@
             href="{{ url_for('index') }}"
             >Home</a
           >
-          <a class="text-dark font-bold hover:text-green-600" href="#Aricle"
+          <a class="text-dark font-bold hover:text-green-600" href="{{ url_for('article') }}"
             >Aricle</a
           >
-          <a class="text-dark font-bold hover:text-green-600" href="#features"
+          <a class="text-dark font-bold hover:text-green-600" href="{{ url_for('features') }}"
             >Features</a
           >
-          <a class="text-dark font-bold hover:text-green-600" href="#contact"
+          <a class="text-dark font-bold hover:text-green-600" href="{{ url_for('contact') }}"
             >Contact</a
           >
           <a
@@ -108,23 +108,6 @@
       </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container mx-auto text-center px-4">
-        <h1 class="text-5xl font-bold mb-4">
-          Welcome to the Somali Lexical Database
-        </h1>
-        <p class="text-xl mb-8">
-          A comprehensive resource for exploring and understanding the richness
-          of the Somali language.
-        </p>
-        <a
-          href="{{ url_for('login') }}"
-          class="border border-gray-300 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
-          >Get Started</a
-        >
-      </div>
-    </section>
 
     <!-- Articles Section -->
     <section id="Aricle" class="py-16 bg-gray-100">
@@ -180,136 +163,9 @@
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section id="features" class="py-16">
-      <div class="container mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-12">Features</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-            <i class="fas fa-book-open feature-icon"></i>
-            <h4 class="text-xl font-semibold mb-2">Comprehensive Lexicon</h4>
-            <p>
-              Explore a vast collection of root words, derivatives, and their
-              meanings in the Somali language.
-            </p>
-          </div>
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-          <i class="fas fa-language feature-icon"></i>
 
-            <h4 class="text-xl font-semibold mb-2">Grammatical Analysis</h4>
-            <p>
-              Access detailed grammatical information for words, including part
-              of speech and usage examples.
-            </p>
-          </div>
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-            <i class="fas fa-chart-bar feature-icon"></i>
-            <h4 class="text-xl font-semibold mb-2">Data Insights</h4>
-            <p>
-              Visualize language trends and patterns with interactive charts and
-              reports.
-            </p>
-          </div>
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-            <i class="fas fa-users feature-icon"></i>
-            <h4 class="text-xl font-semibold mb-2">Community Contributions</h4>
-            <p>
-              Participate in building the database by submitting new words and
-              corrections.
-            </p>
-          </div>
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-            <i class="fas fa-book-reader feature-icon"></i>
-            <h4 class="text-xl font-semibold mb-2">Educational Resources</h4>
-            <p>
-              Access learning materials and resources for students and
-              educators.
-            </p>
-          </div>
-          <div
-            class="feature-card p-8 text-center shadow-lg bg-white rounded-lg"
-          >
-            <i class="fas fa-globe feature-icon"></i>
-            <h4 class="text-xl font-semibold mb-2">Multilingual Support</h4>
-            <p>
-              Experience the database in multiple languages, including Somali
-              and English.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-16 bg-gray-100">
-      <div class="container mx-auto p-8">
-        <h2 class="text-3xl font-bold text-center mb-12">Contact Us</h2>
-        <div class="flex flex-wrap -mx-4">
-          <div class="w-full md:w-1/2 px-4 mb-8 md:mb-0">
-            <h4 class="text-xl font-semibold mb-4">Get in Touch</h4>
-            <p class="mb-4">
-              For any inquiries or support, please feel free to reach out to us.
-              We are here to help you with any questions or issues you may have.
-            </p>
-            <p class="mb-4">
-              <i class="fas fa-envelope"></i>
-              <a href="mailto:gedi@just.edu.so" class="text-blue-600"
-                >gedi@just.edu.so</a
-              >
-            </p>
-            <p><i class="fas fa-phone"></i> Phone: +252 61 5805013</p>
-          </div>
-          <div class="w-full md:w-1/2 px-4">
-            <form>
-              <div class="mb-4">
-                <label for="name" class="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  class="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="Your Name"
-                />
-              </div>
-              <div class="mb-4">
-                <label for="email" class="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  class="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="Your Email"
-                />
-              </div>
-              <div class="mb-4">
-                <label for="message" class="block text-gray-700">Message</label>
-                <textarea
-                  id="message"
-                  class="w-full p-3 border border-gray-300 rounded-md"
-                  rows="4"
-                  placeholder="Your Message"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
-              >
-                Send Message
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
+   
     <!-- Footer -->
     <footer class="footer text-center py-4 bg-green-600 text-white">
       <div class="container mx-auto">

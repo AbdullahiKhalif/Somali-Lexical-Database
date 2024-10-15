@@ -1,129 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up</title>
     <!-- Include Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Include SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+  </head>
 
-<body class="bg-gray-100">
-
-    <div class="h-full -mt-14">
-        <div class="max-w-xl m-auto flex flex-col justify-center items-center px-2 py-24 lg:py-24">
-            <div class="w-full bg-white border border-gray-300 rounded-lg h-auto p-8">
-                <h2 class="text-center text-3xl font-bold mb-5 text-pink-600">Sign Up Form</h2>
-
-                <form id="signup-form" method="post">
-                    <div class="form-group">
-                        <label for="name" class="font-bold">
-                            Username <span class="text-gray-500">*</span>
-                        </label>
-                        <input type="text" name="name" placeholder="Enter Username"
-                            class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2" required />
-                    </div>
-
-                    <div class="form-group mt-4">
-                        <label for="age" class="font-bold">
-                            Age <span class="text-gray-500">*</span>
-                        </label>
-                        <input type="text" name="age" placeholder="Enter Your Age"
-                            class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2" required />
-                    </div>
-
-                    <!-- Gender selection -->
-                    <div class="form-group mt-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="gender">
-                            Gender
-                        </label>
-                        <select id="gender" name="gender" required
-                            class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mt-4">
-                        <label for="email" class="font-bold">
-                            Email <span class="text-gray-500">*</span>
-                        </label>
-                        <input type="email" name="email" placeholder="example@gmail.com"
-                            class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2" required />
-                    </div>
-
-                    <div class="relative form-group mt-4">
-                        <label for="password" class="font-bold">
-                            Password <span class="text-gray-500">*</span>
-                        </label>
-                        <input type="password" name="password" placeholder="Password"
-                            class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2" required />
-                    </div>
-
-                    <div class="form-group mt-6">
-                        <button type="submit"
-                            class="w-full p-2 rounded-md text-center text-white bg-pink-600 hover:bg-pink-900">
-                            Sign Up
-                        </button>
-                    </div>
-                </form>
-                <div class="flex flex-col items-center mt-4">
-                    <p>
-                        Already have an account?
-                        <a href="{{ url_for('login') }}" class="font-bold text-center text-pink-600">
-                            Log In
-                        </a>
-                    </p>
-
-                </div>
-            </div>
+  <body>
+    <nav class="navbar bg-white shadow-md">
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a class="text-dark font-bold text-lg" href="#">
+          <img
+            src="{{ url_for('static', filename='/images/logo.PNG') }}"
+            alt="Logo"
+            class="inline-block h-10 mr-2"
+          />
+          Somali Lexical <span class="text-green-600">Database</span>
+        </a>
+        <div class="flex items-center space-x-4">
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('index') }}"
+            >Home</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('article') }}"
+            >Aricle</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('features') }}"
+            >Features</a
+          >
+          <a
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('contact') }}"
+            >Contact</a
+          >
+          <a
+          class="text-dark font-bold hover:text-green-600"
+          href="{{ url_for('search') }}"
+          >Search</a
+        >
+          <a
+            class="text-dark px-4 py-1 rounded-md"
+            href="{{ url_for('login') }}"
+            >Sign in</a
+          >
+          <a
+            class="bg-green-600 text-white px-4 py-1 rounded-md hover:bg-green-700 transition"
+            href="{{ url_for('signup') }}"
+            >Signup</a
+          >
         </div>
-    </div>
+      </div>
+    </nav>
 
+    <section>
+      <div class="h-full -mt-14">
+        <div
+          class="max-w-xl m-auto flex flex-col justify-center items-center px-2 py-24 lg:py-24"
+        >
+          <div
+            class="w-full bg-white border border-gray-300 rounded-lg h-auto p-8"
+          >
+            <h2 class="text-center text-3xl font-bold mb-5 text-black">
+              Sign Up Form
+            </h2>
+
+            <form id="signup-form" method="post">
+              <div class="form-group">
+                <label for="name" class="font-bold">
+                  Username <span class="text-gray-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Enter Username"
+                  class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2"
+                  required
+                />
+              </div>
+
+              <div class="form-group mt-4">
+                <label for="age" class="font-bold">
+                  Age <span class="text-gray-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="age"
+                  placeholder="Enter Your Age"
+                  class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2"
+                  required
+                />
+              </div>
+
+              <!-- Gender selection -->
+              <div class="form-group mt-4">
+                <label
+                  class="block text-gray-700 text-sm font-bold mb-2"
+                  for="gender"
+                >
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  required
+                  class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group mt-4">
+                <label for="email" class="font-bold">
+                  Email <span class="text-gray-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="example@gmail.com"
+                  class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2"
+                  required
+                />
+              </div>
+
+              <div class="relative form-group mt-4">
+                <label for="password" class="font-bold">
+                  Password <span class="text-gray-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  class="w-full bg-gray-100 shadow p-3 rounded-md outline-none mt-2"
+                  required
+                />
+              </div>
+
+              <div class="form-group mt-6">
+                <button
+                  type="submit"
+                  class="w-full p-2 rounded-md text-center text-white bg-green-600 hover:bg-green-700"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </form>
+            <div class="flex flex-col items-center mt-4">
+              <p>
+                Already have an account?
+                <a
+                  href="{{ url_for('login') }}"
+                  class="font-bold text-center text-green-600"
+                >
+                  Log In
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer text-center py-4 bg-green-600 text-white">
+      <div class="container mx-auto">
+        <p>&copy; 2024 Somali Lexical Database. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Include Tailwind JS -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js"></script>
     <script>
-        $(document).ready(function () {
-    $('#signup-form').submit(function (e) {
-        e.preventDefault();
+      $(document).ready(function () {
+        $("#signup-form").submit(function (e) {
+          e.preventDefault();
 
-        $.ajax({
+          $.ajax({
             url: "{{ url_for('signup') }}",
             method: "POST",
             data: $(this).serialize(),
             success: function (response) {
-                if (response.redirect) {
-                    window.location.href = response.redirect;
-                } else if (response.error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.error,
-                    });
-                }
+              if (response.redirect) {
+                window.location.href = response.redirect;
+              } else if (response.error) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: response.error,
+                });
+              }
             },
             error: function (xhr) {
-                let errorMessage = 'An unexpected error occurred. Please try again.';
+              let errorMessage =
+                "An unexpected error occurred. Please try again.";
 
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                }
+              if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMessage = xhr.responseJSON.error;
+              }
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                });
-            }
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+              });
+            },
+          });
         });
-    });
-});
-
+      });
     </script>
-
-</body>
-
+  </body>
 </html>

@@ -30,6 +30,10 @@ $(document).ready(function () {
             $('#total_asalka_ereyada').text(data.total_asalka_ereyada);
             $('#total_faraca_erayada').text(data.total_faraca_erayada);
 
+            
+            $('#total_asalka_with_farac').text(data.total_asalka_with_farac);
+            $('#total_farac_with_asal').text(data.total_farac_with_asal);
+
 
             // Render charts for Admin
             renderCharts(data);
