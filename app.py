@@ -155,6 +155,12 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
+@app.route('/statistical')
+def statistical():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('statistical.html')
+
 @app.route('/dashboard_data')
 def dashboard_data():
     if 'id' not in session:
@@ -351,6 +357,226 @@ def dashboard_data():
         'user_status_distribution': user_status_distribution ,
         'total_asalka_with_farac': total_asalka_with_farac, 
         'total_farac_with_asal': total_farac_with_asal 
+    })
+
+
+
+# @app.route('/statistical_data')
+# def statistical_data():
+#     if 'id' not in session:
+#         return jsonify({'error': 'User not logged in'}), 403
+
+#     user_id = session['id']  # Get the current user's ID from the session
+#     user_role = session['userRole']  # Get the current user's role from the session
+
+#     conn = get_db_connection()
+#     cursor = conn.cursor(dictionary=True)
+
+#     # Total Asalka Ereyada for current user (User/Moderator see their own, Admin sees all)
+#     if user_role == 'Admin' or user_role == 'Moderator':
+#         cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada")
+#         total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
+#     else:
+#         cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada WHERE userId = %s", (user_id,))
+#         total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
+
+#     # Total Faraca Erayada (User/Moderator see their own, Admin sees all)
+#     if user_role == 'Admin' or user_role == 'Moderator':
+#         cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka")
+#         total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+#     else:
+#         cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka WHERE userId = %s", (user_id,))
+#         total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+
+#     # Maximum number of derivatives (Faraca) for any Asalka_Erayga (only for Admin)
+#     if user_role == 'Admin':
+#         cursor.execute("""
+#             SELECT MAX(farac_count) AS max_derivatives
+#             FROM (
+#                 SELECT COUNT(*) AS farac_count
+#                 FROM erayga_hadalka
+#                 GROUP BY Asalka_erayga
+#             ) AS derived
+#         """)
+#         max_derivatives = cursor.fetchone()['max_derivatives']
+#     else:
+#         max_derivatives = 0  # Default for User and Moderator
+
+#     # Minimum number of derivatives (Faraca) for any Asalka_Erayga (only for Admin)
+#     if user_role == 'Admin':
+#         cursor.execute("""
+#             SELECT MIN(farac_count) AS min_derivatives
+#             FROM (
+#                 SELECT COUNT(*) AS farac_count
+#                 FROM erayga_hadalka
+#                 GROUP BY Asalka_erayga
+#             ) AS derived
+#         """)
+#         min_derivatives = cursor.fetchone()['min_derivatives']
+#     else:
+#         min_derivatives = 0  # Default for User and Moderator
+
+#     # User Role Distribution (only for Admin)
+#     if user_role == 'Admin':
+#         cursor.execute("SELECT userRole, COUNT(*) AS count FROM users GROUP BY userRole")
+#         user_role_distribution = cursor.fetchall()
+#     else:
+#         user_role_distribution = []
+
+#     # User State Distribution (only for Admin)
+#     if user_role == 'Admin':
+#         cursor.execute("SELECT userState, COUNT(*) AS count FROM users GROUP BY userState")
+#         user_state_distribution = cursor.fetchall()
+#     else:
+#         user_state_distribution = []
+
+#     # User Status Distribution (only for Admin)
+#     if user_role == 'Admin':
+#         cursor.execute("SELECT status, COUNT(*) AS count FROM users GROUP BY status")
+#         user_status_distribution = cursor.fetchall()
+#     else:
+#         user_status_distribution = []  # Default empty for User and Moderator
+
+# # Total Root Words (Asal) that are used in Derived Words (Farac)
+#     cursor.execute("""
+#         SELECT COUNT(DISTINCT Asalka_erayga) AS total_asalka_with_farac
+#         FROM erayga_hadalka
+#         WHERE Asalka_erayga IN (SELECT Asalka_erayga FROM asalka_ereyada)
+#     """)
+#     total_asalka_with_farac = cursor.fetchone()['total_asalka_with_farac']
+
+#     # Total Derived Words (Farac) that have corresponding Root Words (Asal)
+#     cursor.execute("""
+#         SELECT COUNT(*) AS total_farac_with_asal
+#         FROM erayga_hadalka
+#         WHERE Asalka_erayga IN (SELECT Asalka_erayga FROM asalka_ereyada)
+#     """)
+#     total_farac_with_asal = cursor.fetchone()['total_farac_with_asal']
+#     cursor.close()
+#     conn.close()
+
+#     return jsonify({
+#         'total_asalka_ereyada': total_asalka_ereyada,
+#         'total_faraca_erayada': total_faraca_erayada,
+#         'max_derivatives': max_derivatives,  
+#         'min_derivatives': min_derivatives,
+#         'user_role_distribution': user_role_distribution,
+#         'user_state_distribution': user_state_distribution,
+#         'user_status_distribution': user_status_distribution,
+#         'total_asalka_with_farac': total_asalka_with_farac, 
+#         'total_farac_with_asal': total_farac_with_asal
+#     })
+@app.route('/statistical_data')
+def statistical_data():
+    if 'id' not in session:
+        return jsonify({'error': 'User not logged in'}), 403
+
+    user_id = session['id']  # Get the current user's ID from the session
+    user_role = session['userRole']  # Get the current user's role from the session
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Total Asalka Ereyada for current user (User/Moderator see their own, Admin sees all)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada")
+        total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_asalka_ereyada FROM asalka_ereyada WHERE userId = %s", (user_id,))
+        total_asalka_ereyada = cursor.fetchone()['total_asalka_ereyada']
+
+    # Total Faraca Erayada (User/Moderator see their own, Admin sees all)
+    if user_role == 'Admin' or user_role == 'Moderator':
+        cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka")
+        total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+    else:
+        cursor.execute("SELECT COUNT(*) AS total_faraca_erayada FROM erayga_hadalka WHERE userId = %s", (user_id,))
+        total_faraca_erayada = cursor.fetchone()['total_faraca_erayada']
+
+    # Maximum and minimum number of derivatives (Faraca) for any Asalka_Erayga (only for Admin)
+    max_derivatives, min_derivatives = 0, 0
+    if user_role == 'Admin':
+        cursor.execute("""
+            SELECT MAX(farac_count) AS max_derivatives
+            FROM (
+                SELECT COUNT(*) AS farac_count
+                FROM erayga_hadalka
+                GROUP BY Asalka_erayga
+            ) AS derived
+        """)
+        max_derivatives = cursor.fetchone()['max_derivatives']
+
+        cursor.execute("""
+            SELECT MIN(farac_count) AS min_derivatives
+            FROM (
+                SELECT COUNT(*) AS farac_count
+                FROM erayga_hadalka
+                GROUP BY Asalka_erayga
+            ) AS derived
+        """)
+        min_derivatives = cursor.fetchone()['min_derivatives']
+
+    # User Role, State, Status Distribution (only for Admin)
+    user_role_distribution, user_state_distribution, user_status_distribution = [], [], []
+    if user_role == 'Admin':
+        cursor.execute("SELECT userRole, COUNT(*) AS count FROM users GROUP BY userRole")
+        user_role_distribution = cursor.fetchall()
+
+        cursor.execute("SELECT userState, COUNT(*) AS count FROM users GROUP BY userState")
+        user_state_distribution = cursor.fetchall()
+
+        cursor.execute("SELECT status, COUNT(*) AS count FROM users GROUP BY status")
+        user_status_distribution = cursor.fetchall()
+
+    # Total Root Words (Asal) that are used in Derived Words (Farac)
+    cursor.execute("""
+        SELECT COUNT(DISTINCT Asalka_erayga) AS total_asalka_with_farac
+        FROM erayga_hadalka
+        WHERE Asalka_erayga IN (SELECT Aqonsiga_Erayga FROM asalka_ereyada)
+    """)
+    total_asalka_with_farac = cursor.fetchone()['total_asalka_with_farac']
+
+    # Total Derived Words (Farac) that have corresponding Root Words (Asal)
+    cursor.execute("""
+        SELECT COUNT(*) AS total_farac_with_asal
+        FROM erayga_hadalka
+        WHERE Asalka_erayga IN (SELECT Aqonsiga_Erayga FROM asalka_ereyada)
+    """)
+    total_farac_with_asal = cursor.fetchone()['total_farac_with_asal']
+
+  # Distribution of Asalka_ereyada by Qaybta_hadalka
+    cursor.execute("""
+        SELECT qh.Qaybta_hadalka, COUNT(ae.Aqonsiga_Erayga) AS asal_count
+        FROM asalka_ereyada ae
+        JOIN erayga_hadalka eh ON ae.Aqonsiga_Erayga = eh.Asalka_erayga
+        JOIN qeybaha_hadalka qh ON eh.Qeybta_hadalka = qh.Aqoonsiga_hadalka
+        GROUP BY qh.Qaybta_hadalka
+    """)
+    qaybta_hadalka_distribution = cursor.fetchall()
+
+    # Fetch total Qaybta_hadalka for percentage calculation
+    cursor.execute("SELECT COUNT(DISTINCT Qaybta_hadalka) AS total_qeybta_hadalka FROM qeybaha_hadalka")
+    total_qeybta_hadalka = cursor.fetchone()['total_qeybta_hadalka']
+
+    # Compute percentages for each Qaybta_hadalka
+    for item in qaybta_hadalka_distribution:
+        item['percentage'] = (item['asal_count'] / total_qeybta_hadalka) * 100
+
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({
+        'total_asalka_ereyada': total_asalka_ereyada,
+        'total_faraca_erayada': total_faraca_erayada,
+        'max_derivatives': max_derivatives,  
+        'min_derivatives': min_derivatives,
+        'user_role_distribution': user_role_distribution,
+        'user_state_distribution': user_state_distribution,
+        'user_status_distribution': user_status_distribution,
+        'total_asalka_with_farac': total_asalka_with_farac, 
+        'total_farac_with_asal': total_farac_with_asal,
+       'qaybta_hadalka_distribution': qaybta_hadalka_distribution
     })
 
 
@@ -911,45 +1137,45 @@ def get_all_erayga_hadalka():
     return jsonify(data)
 
 
-@app.route('/readInfoErayga/<int:id>', methods=['GET'])
-def get_erayga_hadalka(id):
+@app.route('/getEraygaByQeybta/<int:id>', methods=['GET'])
+def get_erayga_by_qeybta(id):
     if 'id' not in session:
         return jsonify({'error': 'User not logged in'}), 403
-
-    user_id = session['id']
-    user_role = session['userRole']  # Get the current user's role from the session
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Admins and Moderators can access any record, regular users can only access their own
-    if user_role == 'Admin' or user_role == 'Moderator':
-        cursor.execute("SELECT * FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s", (id,))
-    else:
-        cursor.execute("SELECT * FROM erayga_hadalka WHERE Aqoonsiga_erayga = %s AND userId = %s", (id, user_id))
-
+    # Fetch the clicked Erayga entry with its corresponding Asalka_erayga name from the asalka_ereyada table
+    cursor.execute("""
+        SELECT eh.*, ae.Erayga_Asalka 
+        FROM erayga_hadalka eh 
+        JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga 
+        WHERE eh.Aqoonsiga_erayga = %s
+    """, (id,))
+    
     erayga_data = cursor.fetchone()
 
     if not erayga_data:
         cursor.close()
         conn.close()
-        return jsonify({'error': 'Record not found or you do not have permission to view it'}), 404
+        return jsonify({'error': 'Erayga not found'}), 404
 
-    asalka_erayga_id = erayga_data['Asalka_erayga']  # Get the Asalka_erayga ID for this record
+    # Extract Qeybta_hadalka and Asalka_erayga from the fetched Erayga entry
+    qeybtahadalka_id = erayga_data['Qeybta_hadalka']
+    asalka_erayga_id = erayga_data['Asalka_erayga']
 
-    # Fetch all Erayga words that share the same Asalka_erayga
-    cursor.execute("SELECT Erayga FROM erayga_hadalka WHERE Asalka_erayga = %s", (asalka_erayga_id,))
-    related_erayga_words = cursor.fetchall()
+    # Fetch all related Erayga entries that share the same Qeybta_hadalka and Asalka_erayga
+    cursor.execute("""
+        SELECT eh.Erayga, ae.Erayga_Asalka 
+        FROM erayga_hadalka eh 
+        JOIN asalka_ereyada ae ON eh.Asalka_erayga = ae.Aqonsiga_Erayga 
+        WHERE eh.Qeybta_hadalka = %s AND eh.Asalka_erayga = %s
+    """, (qeybtahadalka_id, asalka_erayga_id))
+    
+    related_erayga = cursor.fetchall()
 
-    # Join the related words with commas
-    related_erayga_words_str = ', '.join([row['Erayga'] for row in related_erayga_words])
-
-    # Admins and Moderators can view all Asalka Erayga options, regular users only see their own
-    if user_role == 'Admin' or user_role == 'Moderator':
-        cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada")
-    else:
-        cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada WHERE userId = %s", (user_id,))
-
+    # Fetch all Asalka_ereyga options for the dropdown
+    cursor.execute("SELECT Aqonsiga_Erayga, Erayga_Asalka FROM asalka_ereyada")
     asalka_options = cursor.fetchall()
 
     cursor.close()
@@ -957,8 +1183,8 @@ def get_erayga_hadalka(id):
 
     return jsonify({
         'erayga_data': erayga_data,
-        'related_erayga_words': related_erayga_words_str,  # Return the related Erayga words as a string
-        'asalka_options': asalka_options
+        'related_erayga': related_erayga,  # Return all related Erayga entries
+        'asalka_options': asalka_options    # Return all Asalka options for the dropdown
     })
 
 @app.route('/createErayga', methods=['POST'])
@@ -1048,6 +1274,42 @@ def update_erayga_hadalka(id):
             conn.close()
             return jsonify({'error': 'Permission denied: You can only update your own records'}), 403
 
+    # Fetch the current record's Qeybta_hadalka and Asalka_erayga for comparison
+    cursor.execute("""
+        SELECT Qeybta_hadalka, Asalka_erayga 
+        FROM erayga_hadalka 
+        WHERE Aqoonsiga_erayga = %s
+    """, (id,))
+    current_record = cursor.fetchone()
+
+    if not current_record:
+        cursor.close()
+        conn.close()
+        return jsonify({'error': 'Erayga not found'}), 404
+
+    current_qeybta_hadalka = current_record['Qeybta_hadalka']
+    current_asalka_erayga = current_record['Asalka_erayga']
+
+    messages = []
+
+    # If Qeybta_hadalka changed, update Asalka_erayga and add a success message
+    if Qeybta_hadalka != current_qeybta_hadalka:
+        cursor.execute("""
+            UPDATE erayga_hadalka
+            SET Asalka_erayga = %s
+            WHERE Qeybta_hadalka = %s
+        """, (Asalka_erayga, Qeybta_hadalka))
+        messages.append(f"Qeybta_hadalka changed, Asalka_erayga updated to {Asalka_erayga}")
+
+    # If Asalka_erayga changed, update Qeybta_hadalka and add a success message
+    if Asalka_erayga != current_asalka_erayga:
+        cursor.execute("""
+            UPDATE erayga_hadalka
+            SET Qeybta_hadalka = %s
+            WHERE Asalka_erayga = %s
+        """, (Qeybta_hadalka, Asalka_erayga))
+        messages.append(f"Asalka_erayga changed, Qeybta_hadalka updated to {Qeybta_hadalka}")
+
     # Split the new Erayga input by both commas and spaces to get individual words
     new_erayga_words = re.split(r'[,\s]+', Erayga.strip())
 
@@ -1061,13 +1323,11 @@ def update_erayga_hadalka(id):
     # Words to delete (existing words not in the updated list)
     words_to_delete = set(existing_erayga_words) - set(new_erayga_words)
 
-    # Update existing words (if needed) and insert new words
     inserted_count = 0
-    updated_count = 0
+    deleted_count = 0
 
     # Add new words
     for word in words_to_add:
-        # Check if the word already exists
         cursor.execute("SELECT * FROM erayga_hadalka WHERE Erayga = %s", (word,))
         existing_record = cursor.fetchone()
 
@@ -1084,15 +1344,21 @@ def update_erayga_hadalka(id):
     # Delete old words that are not in the updated list
     for word in words_to_delete:
         cursor.execute("DELETE FROM erayga_hadalka WHERE Erayga = %s AND Aqoonsiga_erayga = %s", (word, id))
+        deleted_count += 1
 
     # Commit the transaction to the database
     conn.commit()
     cursor.close()
     conn.close()
 
-    # Return a success message with the number of inserted/updated words
+    # Append message for word additions and deletions
+    messages.append(f'{inserted_count} words added.')
+    messages.append(f'{deleted_count} words deleted.')
+
+    # Return all success messages
     return jsonify({
-        'message': f'Record updated successfully with {inserted_count} words added and {len(words_to_delete)} words deleted.'
+        'message': 'Record updated successfully.',
+        'details': messages
     }), 200
 
 

@@ -38,7 +38,14 @@
                   <li class="sidebar-item active">
                     <a class="sidebar-link" href="dashboard">Dashboard</a>
                   </li>
+
+                  {% if session['userRole'] == 'Admin' or session['userRole'] == 'Moderator' %}
+                  <li class="sidebar-item">
+                    <a class="sidebar-link" href="statistical">Statitical</a>
+                  </li>
+                  {% endif %}
                 </ul>
+                
               </li>
 
               <!-- Subscriber Section (Admin/Moderator) -->

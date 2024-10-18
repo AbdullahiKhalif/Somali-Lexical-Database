@@ -9,7 +9,13 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <!-- Include SweetAlert2 for toast notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
@@ -50,11 +56,11 @@
             >Contact</a
           >
           <a
-          class="text-dark font-bold hover:text-green-600"
-          href="{{ url_for('search') }}"
-          >Search</a
-        >
-          
+            class="text-dark font-bold hover:text-green-600"
+            href="{{ url_for('search') }}"
+            >Search</a
+          >
+
           <a
             class="text-dark px-4 py-1 rounded-md"
             href="{{ url_for('login') }}"
@@ -69,39 +75,42 @@
       </div>
     </nav>
 
-    
     <!-- Table Section -->
     <section class="py-16 px-16">
       <!-- Search Input and Export Button -->
       <div class="flex items-center space-x-4">
         <div class="container flex-grow flex-4 relative">
           <!-- Search Input with Icon -->
-          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
             <i class="fa fa-search"></i>
           </span>
           <input
             type="text"
             id="searchInput"
-            class="border shadow-lg rounded-md px-10 py-2 w-full "
+            class="border shadow-lg rounded-md px-10 py-2 w-full"
             placeholder="Search for words..."
           />
         </div>
         <div class="container flex-1">
-         
           <button
             id="exportReport"
             class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition w-full"
           >
-         Export
+            Export
           </button>
         </div>
       </div>
-    
+
       <!-- Table Section -->
       <div class="container mx-auto mt-6 flex justify-center">
         <div class="w-full">
           <div class="table-responsive">
-            <table id="reportsTable" class="table-auto w-full border-collapse border border-gray-300 shadow-md">
+            <table
+              id="reportsTable"
+              class="table-auto w-full border-collapse border border-gray-300 shadow-md"
+            >
               <thead class="bg-gray-200 text-gray-700">
                 <tr>
                   <th class="border px-4 py-2">ID</th>
@@ -120,14 +129,22 @@
       </div>
 
       <!-- Pagination Controls -->
-  <div class="container mx-auto mt-4 flex justify-center">
-    <button id="prevPage" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mx-1">Previous</button>
-    <span id="pageInfo" class="px-4 py-2">Page 1 of 1</span>
-    <button id="nextPage" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mx-1">Next</button>
-  </div>
+      <div class="container mx-auto mt-4 flex justify-center">
+        <button
+          id="prevPage"
+          class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mx-1"
+        >
+          Previous
+        </button>
+        <span id="pageInfo" class="px-4 py-2">Page 1 of 1</span>
+        <button
+          id="nextPage"
+          class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md mx-1"
+        >
+          Next
+        </button>
+      </div>
     </section>
-    
-
 
     <!-- Footer -->
     <footer class="footer text-center py-4 bg-green-600 text-white">
